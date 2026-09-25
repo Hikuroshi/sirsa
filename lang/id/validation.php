@@ -197,6 +197,14 @@ return [
     |
     */
 
-    'attributes' => [],
-
+    'attributes' => [
+        'name' => 'nama',
+        'username' => 'username',
+        'email' => 'email',
+        'role' => 'peran',
+        'login' => 'email atau username',
+        'password' => 'kata sandi',
+        'password_confirmation' => 'konfirmasi kata sandi',
+        'remember' => 'ingat saya',
+    ],
 ];

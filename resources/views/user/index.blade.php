@@ -1,13 +1,14 @@
 <x-layouts.app>
     <x-slot:title>Daftar Pengguna</x-slot:title>
 
-    <div class="flex items-center justify-between">
-        <h1 class="text-2xl font-semibold">Daftar Pengguna</h1>
-        <a class="rounded bg-blue-600 px-4 py-2 text-white" href="{{ route('user.create') }}">Tambah</a>
-    </div>
+    <x-page-header title="Daftar Pengguna">
+        <x-slot:actions>
+            <x-button :href="route('user.create')">Tambah</x-button>
+        </x-slot:actions>
+    </x-page-header>
 
     @if (session('success'))
-        <p class="mt-4 rounded bg-green-100 p-3 text-green-800">{{ session('success') }}</p>
+        <x-alert class="mt-4">{{ session('success') }}</x-alert>
     @endif
 
     <div class="mt-6 overflow-x-auto rounded bg-white">
@@ -30,12 +31,12 @@
                         <td class="p-3">{{ $user->role->label() }}</td>
                         <td class="p-3">
                             <div class="flex gap-3">
-                                <a class="text-blue-600" href="{{ route('user.show', $user) }}">Detail</a>
-                                <a class="text-amber-600" href="{{ route('user.edit', $user) }}">Edit</a>
+                                <x-button :href="route('user.show', $user)" variant="link">Detail</x-button>
+                                <x-button :href="route('user.edit', $user)" variant="link">Edit</x-button>
                                 <form action="{{ route('user.destroy', $user) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
-                                    <button class="text-red-600" type="submit">Hapus</button>
+                                    <x-button type="submit" variant="danger">Hapus</x-button>
                                 </form>
                             </div>
                         </td>
