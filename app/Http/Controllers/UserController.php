@@ -6,6 +6,7 @@ use App\Enums\Role;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -13,7 +14,7 @@ class UserController extends Controller
 {
     public function index(Request $request): View
     {
-        $this->authorizeManagement($request);
+        Gate::authorize('viewAny', User::class);
         $query = User::query()->latest();
 
         if ($request->user()->isAdmin()) {
@@ -42,7 +43,7 @@ class UserController extends Controller
 
     public function create(Request $request): View
     {
-        $this->authorizeManagement($request);
+        Gate::authorize('create', User::class);
 
         return view('user.form', [
             'title' => 'Tambah Pengguna',
@@ -52,7 +53,7 @@ class UserController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $this->authorizeManagement($request);
+        Gate::authorize('create', User::class);
         $validated = $this->validateUser($request, passwordRequired: true);
 
         User::create([
@@ -65,7 +66,7 @@ class UserController extends Controller
 
     public function show(Request $request, User $user): View
     {
-        $this->authorizeUser($request, $user);
+        Gate::authorize('view', $user);
 
         return view('user.show', [
             'title' => 'Detail Pengguna',
@@ -75,7 +76,7 @@ class UserController extends Controller
 
     public function edit(Request $request, User $user): View
     {
-        $this->authorizeUser($request, $user);
+        Gate::authorize('update', $user);
 
         return view('user.form', [
             'title' => 'Edit Pengguna',
@@ -86,7 +87,7 @@ class UserController extends Controller
 
     public function update(Request $request, User $user): RedirectResponse
     {
-        $this->authorizeUser($request, $user);
+        Gate::authorize('update', $user);
         $validated = $this->validateUser($request, $user);
 
         if (blank($validated['password'])) {
@@ -100,7 +101,7 @@ class UserController extends Controller
 
     public function destroy(Request $request, User $user): RedirectResponse
     {
-        $this->authorizeUser($request, $user);
+        Gate::authorize('delete', $user);
 
         if ($request->user()->isAdmin()) {
             if ($request->user()->is($user)) {
@@ -137,25 +138,6 @@ class UserController extends Controller
     private function availableRoles(Request $request): array
     {
         return $request->user()->isSuperadmin() ? Role::cases() : [Role::Admin];
-    }
-
-    private function authorizeManagement(Request $request): void
-    {
-        abort_unless(
-            $request->user()->isSuperadmin()
-                || ($request->user()->isAdmin() && $request->user()->organization_id !== null),
-            403,
-        );
-    }
-
-    private function authorizeUser(Request $request, User $user): void
-    {
-        $this->authorizeManagement($request);
-        abort_unless(
-            $request->user()->isSuperadmin()
-                || $request->user()->organization_id === $user->organization_id,
-            404,
-        );
     }
 
     private function deletionWarning(User $user, bool $includeGlobalImpact): string

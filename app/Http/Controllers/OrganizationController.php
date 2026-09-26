@@ -30,14 +30,20 @@ class OrganizationController extends Controller
             $organization->id => $this->deletionWarning($organization),
         ]);
 
-        return view('organization.index', compact('organizations', 'deletionWarnings'));
+        return view('organization.index', [
+            'title' => 'Daftar Organisasi',
+            'organizations' => $organizations,
+            'deletionWarnings' => $deletionWarnings,
+        ]);
     }
 
     public function create(): View
     {
         Gate::authorize('create', Organization::class);
 
-        return view('organization.form');
+        return view('organization.form', [
+            'title' => 'Tambah Organisasi',
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -69,22 +75,28 @@ class OrganizationController extends Controller
 
     public function show(Organization $organization): View
     {
-        abort_unless(Gate::allows('view', $organization), 404);
+        Gate::authorize('view', $organization);
         $organization->load('creator')->loadCount(['admins', 'categories', 'reports', 'aiApiKeys']);
 
-        return view('organization.show', compact('organization'));
+        return view('organization.show', [
+            'title' => 'Detail Organisasi',
+            'organization' => $organization,
+        ]);
     }
 
     public function edit(Organization $organization): View
     {
-        abort_unless(Gate::allows('update', $organization), 404);
+        Gate::authorize('update', $organization);
 
-        return view('organization.form', compact('organization'));
+        return view('organization.form', [
+            'title' => 'Edit Organisasi',
+            'organization' => $organization,
+        ]);
     }
 
     public function update(Request $request, Organization $organization): RedirectResponse
     {
-        abort_unless(Gate::allows('update', $organization), 404);
+        Gate::authorize('update', $organization);
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'alpha_dash', 'max:100', Rule::unique('organizations')->ignore($organization)],

@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Organization;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -13,7 +14,7 @@ class CategoryController extends Controller
 {
     public function index(Request $request): View
     {
-        $this->authorizeManagement($request);
+        Gate::authorize('viewAny', Category::class);
         $categories = Category::query()
             ->with('organization')
             ->withCount('reports')
@@ -21,12 +22,15 @@ class CategoryController extends Controller
             ->latest()
             ->paginate(15);
 
-        return view('category.index', compact('categories'));
+        return view('category.index', [
+            'title' => 'Daftar Kategori',
+            'categories' => $categories,
+        ]);
     }
 
     public function create(Request $request): View
     {
-        $this->authorizeManagement($request);
+        Gate::authorize('create', Category::class);
 
         return view('category.form', [
             'title' => 'Tambah Kategori',
@@ -38,7 +42,7 @@ class CategoryController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $this->authorizeManagement($request);
+        Gate::authorize('create', Category::class);
         $organization = $this->organizationForCreation($request);
         $validated = $this->validateCategory($request, $organization);
 
@@ -52,15 +56,18 @@ class CategoryController extends Controller
 
     public function show(Request $request, Category $category): View
     {
-        $this->authorizeCategory($request, $category);
+        Gate::authorize('view', $category);
         $category->load('organization')->loadCount('reports');
 
-        return view('category.show', compact('category'));
+        return view('category.show', [
+            'title' => 'Detail Kategori',
+            'category' => $category,
+        ]);
     }
 
     public function edit(Request $request, Category $category): View
     {
-        $this->authorizeCategory($request, $category);
+        Gate::authorize('update', $category);
         $category->load('organization');
 
         return view('category.form', [
@@ -72,7 +79,7 @@ class CategoryController extends Controller
 
     public function update(Request $request, Category $category): RedirectResponse
     {
-        $this->authorizeCategory($request, $category);
+        Gate::authorize('update', $category);
         $validated = $this->validateCategory($request, $category->organization, $category);
         $category->update([
             ...$validated,
@@ -84,29 +91,10 @@ class CategoryController extends Controller
 
     public function destroy(Request $request, Category $category): RedirectResponse
     {
-        $this->authorizeCategory($request, $category);
+        Gate::authorize('delete', $category);
         $category->delete();
 
         return redirect()->route('categories.index')->with('success', 'Kategori berhasil dihapus.');
-    }
-
-    private function authorizeManagement(Request $request): void
-    {
-        abort_unless(
-            $request->user()->isSuperadmin()
-                || ($request->user()->isAdmin() && $request->user()->organization_id !== null),
-            403,
-        );
-    }
-
-    private function authorizeCategory(Request $request, Category $category): void
-    {
-        $this->authorizeManagement($request);
-        abort_unless(
-            $request->user()->isSuperadmin()
-                || $request->user()->organization_id === $category->organization_id,
-            404,
-        );
     }
 
     private function organizationForCreation(Request $request): Organization

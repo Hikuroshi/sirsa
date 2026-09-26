@@ -27,15 +27,19 @@ class ReportController extends Controller
             $query->where('reporter_id', $request->user()->id);
         }
 
-        return view('report.index', ['reports' => $query->paginate(15)]);
+        return view('report.index', [
+            'title' => 'Daftar Laporan',
+            'reports' => $query->paginate(15),
+        ]);
     }
 
     public function show(Report $report): View
     {
-        abort_unless(Gate::allows('view', $report), 404);
+        Gate::authorize('view', $report);
         $report->load(['organization.categories', 'category', 'images', 'aiResult.category', 'statusHistories.changedBy']);
 
         return view('report.show', [
+            'title' => 'Laporan',
             'report' => $report,
             'priorities' => ReportPriority::cases(),
             'statuses' => ReportStatus::cases(),
@@ -44,7 +48,7 @@ class ReportController extends Controller
 
     public function update(Request $request, Report $report): RedirectResponse
     {
-        abort_unless(Gate::allows('update', $report), 404);
+        Gate::authorize('update', $report);
         $validated = $request->validate([
             'description' => ['required', 'string', 'min:20', 'max:10000'],
             'category_id' => ['nullable', Rule::exists('categories', 'id')->where('organization_id', $report->organization_id)],

@@ -6,6 +6,7 @@ use App\Models\AiModelLimit;
 use App\Services\AiProviderRegistry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -13,16 +14,17 @@ class AiModelLimitController extends Controller
 {
     public function index(Request $request): View
     {
-        $this->authorizeSuperadmin($request);
+        Gate::authorize('viewAny', AiModelLimit::class);
 
         return view('ai-model-limit.index', [
+            'title' => 'Daftar Model AI',
             'limits' => AiModelLimit::query()->withCount('apiKeys')->orderBy('provider')->orderBy('model')->paginate(15),
         ]);
     }
 
     public function create(Request $request, AiProviderRegistry $providers): View
     {
-        $this->authorizeSuperadmin($request);
+        Gate::authorize('create', AiModelLimit::class);
 
         return view('ai-model-limit.form', [
             'title' => 'Tambah Model AI',
@@ -32,7 +34,7 @@ class AiModelLimitController extends Controller
 
     public function store(Request $request, AiProviderRegistry $providers): RedirectResponse
     {
-        $this->authorizeSuperadmin($request);
+        Gate::authorize('create', AiModelLimit::class);
         AiModelLimit::create($this->validated($request, $providers));
 
         return redirect()->route('ai-model-limits.index')->with('success', 'Model AI berhasil dibuat.');
@@ -40,15 +42,18 @@ class AiModelLimitController extends Controller
 
     public function show(Request $request, AiModelLimit $aiModelLimit): View
     {
-        $this->authorizeSuperadmin($request);
+        Gate::authorize('view', $aiModelLimit);
         $aiModelLimit->loadCount('apiKeys');
 
-        return view('ai-model-limit.show', ['limit' => $aiModelLimit]);
+        return view('ai-model-limit.show', [
+            'title' => 'Detail Model AI',
+            'limit' => $aiModelLimit,
+        ]);
     }
 
     public function edit(Request $request, AiModelLimit $aiModelLimit, AiProviderRegistry $providers): View
     {
-        $this->authorizeSuperadmin($request);
+        Gate::authorize('update', $aiModelLimit);
 
         return view('ai-model-limit.form', [
             'title' => 'Edit Model AI',
@@ -59,7 +64,7 @@ class AiModelLimitController extends Controller
 
     public function update(Request $request, AiModelLimit $aiModelLimit, AiProviderRegistry $providers): RedirectResponse
     {
-        $this->authorizeSuperadmin($request);
+        Gate::authorize('update', $aiModelLimit);
         $aiModelLimit->update($this->validated($request, $providers, $aiModelLimit));
 
         return redirect()->route('ai-model-limits.index')->with('success', 'Model AI berhasil diperbarui.');
@@ -67,7 +72,7 @@ class AiModelLimitController extends Controller
 
     public function destroy(Request $request, AiModelLimit $aiModelLimit): RedirectResponse
     {
-        $this->authorizeSuperadmin($request);
+        Gate::authorize('delete', $aiModelLimit);
 
         if ($aiModelLimit->apiKeys()->exists()) {
             return back()->withErrors(['model' => 'Model masih digunakan oleh API key.']);
@@ -93,10 +98,5 @@ class AiModelLimitController extends Controller
             'rpd' => ['required', 'integer', 'min:1'],
             'tpm' => ['required', 'integer', 'min:1'],
         ]);
-    }
-
-    private function authorizeSuperadmin(Request $request): void
-    {
-        abort_unless($request->user()->isSuperadmin(), 403);
     }
 }

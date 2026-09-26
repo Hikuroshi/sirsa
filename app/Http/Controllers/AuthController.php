@@ -46,7 +46,7 @@ class AuthController extends Controller
     public function register(): View
     {
         return view('auth.register', [
-            'title' => 'Register',
+            'title' => 'Daftar',
         ]);
     }
 

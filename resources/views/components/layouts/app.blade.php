@@ -18,20 +18,21 @@
                 @auth
                     <a href="{{ route('dashboard') }}">Dashboard</a>
                     <a href="{{ route('reports.index') }}">Laporan</a>
-                    @if (auth()->user()->isAdmin() || auth()->user()->isSuperadmin())
+                    @can('viewAny', App\Models\Organization::class)
                         <a href="{{ route('organizations.index') }}">Organisasi</a>
-                    @endif
-                    @if (auth()->user()->isAdmin() && auth()->user()->organization_id !== null)
-                        <a href="{{ route('user.index') }}">Admin</a>
-                        <a href="{{ route('categories.index') }}">Kategori</a>
-                        <a href="{{ route('ai-keys.index') }}">API Key</a>
-                    @endif
-                    @if (auth()->user()->isSuperadmin())
-                        <a href="{{ route('categories.index') }}">Kategori</a>
-                        <a href="{{ route('ai-keys.index') }}">API Key</a>
-                        <a href="{{ route('ai-model-limits.index') }}">Model AI</a>
+                    @endcan
+                    @can('viewAny', App\Models\User::class)
                         <a href="{{ route('user.index') }}">Pengguna</a>
-                    @endif
+                    @endcan
+                    @can('viewAny', App\Models\Category::class)
+                        <a href="{{ route('categories.index') }}">Kategori</a>
+                    @endcan
+                    @can('viewAny', App\Models\AiApiKey::class)
+                        <a href="{{ route('ai-keys.index') }}">API Key</a>
+                    @endcan
+                    @can('viewAny', App\Models\AiModelLimit::class)
+                        <a href="{{ route('ai-model-limits.index') }}">Model AI</a>
+                    @endcan
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
                         <button type="submit">Logout</button>

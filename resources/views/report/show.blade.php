@@ -27,7 +27,7 @@
             @endif
         </x-card>
 
-        @if (auth()->user()->isAdmin() || auth()->user()->isSuperadmin())
+        @can('update', $report)
             <x-card>
                 <form class="grid gap-4" action="{{ route('reports.update', $report) }}" method="POST">
                     @csrf
@@ -73,6 +73,6 @@
                     <x-button type="submit">Verifikasi / Simpan</x-button>
                 </form>
             </x-card>
-        @endif
+        @endcan
     </div>
 </x-layouts.app>

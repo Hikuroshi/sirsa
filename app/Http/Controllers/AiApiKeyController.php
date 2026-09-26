@@ -7,6 +7,7 @@ use App\Models\AiModelLimit;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -14,7 +15,7 @@ class AiApiKeyController extends Controller
 {
     public function index(Request $request): View
     {
-        $this->authorizeManagement($request);
+        Gate::authorize('viewAny', AiApiKey::class);
         $keys = AiApiKey::query()
             ->with('modelLimit')
             ->when($request->user()->isSuperadmin(), fn ($query) => $query->whereNull('organization_id'))
@@ -22,22 +23,25 @@ class AiApiKeyController extends Controller
             ->orderBy('priority')
             ->paginate(15);
 
-        return view('ai-key.index', compact('keys'));
+        return view('ai-key.index', [
+            'title' => 'Daftar API Key',
+            'keys' => $keys,
+        ]);
     }
 
     public function create(Request $request): View
     {
-        $this->authorizeManagement($request);
+        Gate::authorize('create', AiApiKey::class);
 
         return view('ai-key.form', [
-            'title' => 'Tambah API Key AI',
+            'title' => 'Tambah API Key',
             'modelLimits' => $this->modelLimits(),
         ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
-        $this->authorizeManagement($request);
+        Gate::authorize('create', AiApiKey::class);
         $validated = $this->validateKey($request, true);
         AiApiKey::create([
             ...$validated,
@@ -51,19 +55,22 @@ class AiApiKeyController extends Controller
 
     public function show(Request $request, AiApiKey $aiKey): View
     {
-        $this->authorizeKey($request, $aiKey);
+        Gate::authorize('view', $aiKey);
         $aiKey->load(['modelLimit', 'organization']);
 
-        return view('ai-key.show', ['key' => $aiKey]);
+        return view('ai-key.show', [
+            'title' => 'Detail API Key',
+            'key' => $aiKey,
+        ]);
     }
 
     public function edit(Request $request, AiApiKey $aiKey): View
     {
-        $this->authorizeKey($request, $aiKey);
+        Gate::authorize('update', $aiKey);
         $aiKey->load('modelLimit');
 
         return view('ai-key.form', [
-            'title' => 'Edit API Key AI',
+            'title' => 'Edit API Key',
             'key' => $aiKey,
             'modelLimits' => $this->modelLimits(),
         ]);
@@ -71,7 +78,7 @@ class AiApiKeyController extends Controller
 
     public function update(Request $request, AiApiKey $aiKey): RedirectResponse
     {
-        $this->authorizeKey($request, $aiKey);
+        Gate::authorize('update', $aiKey);
         $validated = $this->validateKey($request, false);
 
         if (blank($validated['secret'] ?? null)) {
@@ -87,7 +94,7 @@ class AiApiKeyController extends Controller
 
     public function destroy(Request $request, AiApiKey $aiKey): RedirectResponse
     {
-        $this->authorizeKey($request, $aiKey);
+        Gate::authorize('delete', $aiKey);
         $aiKey->delete();
 
         return redirect()->route('ai-keys.index')->with('success', 'API key berhasil dihapus.');
@@ -106,26 +113,6 @@ class AiApiKeyController extends Controller
             'rpd' => ['nullable', 'integer', 'min:1'],
             'tpm' => ['nullable', 'integer', 'min:1'],
         ]);
-    }
-
-    private function authorizeManagement(Request $request): void
-    {
-        abort_unless(
-            $request->user()->isSuperadmin()
-                || ($request->user()->isAdmin() && $request->user()->organization_id !== null),
-            403,
-        );
-    }
-
-    private function authorizeKey(Request $request, AiApiKey $apiKey): void
-    {
-        $allowed = $request->user()->isSuperadmin()
-            ? $apiKey->organization_id === null
-            : $request->user()->isAdmin()
-                && $request->user()->organization_id !== null
-                && $apiKey->organization_id === $request->user()->organization_id;
-
-        abort_unless($allowed, 404);
     }
 
     private function modelLimits(): Collection

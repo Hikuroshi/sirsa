@@ -1,9 +1,11 @@
 <x-layouts.app>
     <x-slot:title>{{ $organization->name }}</x-slot:title>
     <x-page-header :title="$organization->name">
-        <x-slot:actions>
-            <x-button :href="route('organizations.edit', $organization)" variant="warning">Edit</x-button>
-        </x-slot:actions>
+        @can('update', $organization)
+            <x-slot:actions>
+                <x-button :href="route('organizations.edit', $organization)" variant="warning">Edit</x-button>
+            </x-slot:actions>
+        @endcan
     </x-page-header>
 
     <x-card class="mt-6">

@@ -24,7 +24,10 @@ class PublicReportController extends Controller
     {
         abort_unless($organization->is_active, 404);
 
-        return view('report.form', compact('organization'));
+        return view('report.form', [
+            'title' => 'Laporkan',
+            'organization' => $organization,
+        ]);
     }
 
     public function store(Request $request, Organization $organization, AiRequestScheduler $scheduler): RedirectResponse
@@ -88,6 +91,9 @@ class PublicReportController extends Controller
             ->with(['organization', 'category', 'images', 'statusHistories.changedBy'])
             ->firstOrFail();
 
-        return view('report.track', compact('report'));
+        return view('report.track', [
+            'title' => 'Laporan',
+            'report' => $report,
+        ]);
     }
 }
