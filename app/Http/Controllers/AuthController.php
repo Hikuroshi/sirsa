@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class AuthController extends Controller
@@ -55,10 +56,10 @@ class AuthController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:255', 'unique:users,username'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'role' => ['required', Rule::in([Role::Admin->value, Role::Reporter->value])],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        $validated['role'] = Role::Reporter;
         User::create($validated);
 
         return redirect()->route('login')->with('success', 'Pendaftaran berhasil. Silakan login.');

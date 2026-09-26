@@ -45,4 +45,19 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    public function superadmin(): static
+    {
+        return $this->state(fn () => ['role' => Role::Superadmin, 'organization_id' => null]);
+    }
+
+    public function admin(): static
+    {
+        return $this->state(fn () => ['role' => Role::Admin]);
+    }
+
+    public function reporter(): static
+    {
+        return $this->state(fn () => ['role' => Role::Reporter, 'organization_id' => null]);
+    }
 }

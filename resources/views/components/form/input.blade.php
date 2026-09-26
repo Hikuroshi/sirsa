@@ -1,9 +1,4 @@
-@props([
-    'label',
-    'name',
-    'type' => 'text',
-    'value' => '',
-])
+@props(['label', 'name', 'type' => 'text', 'value' => ''])
 
 <label class="grid gap-1">
     <span>{{ $label }}</span>

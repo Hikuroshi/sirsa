@@ -15,10 +15,7 @@
 
             <x-form.input label="Password" name="password" type="password" />
 
-            <label class="flex items-center gap-2">
-                <input type="checkbox" name="remember" value="1" />
-                <span>Ingat saya</span>
-            </label>
+            <x-form.checkbox label="Ingat saya" name="remember" />
 
             <x-button type="submit">Login</x-button>
         </form>

@@ -10,6 +10,10 @@
             <x-form.input label="Nama" name="name" autofocus />
             <x-form.input label="Username" name="username" />
             <x-form.input label="Email" name="email" type="email" />
+            <x-form.select label="Tipe Akun" name="role">
+                <option value="reporter" @selected(old('role') === 'reporter')>Pelapor</option>
+                <option value="admin" @selected(old('role') === 'admin')>Admin Organisasi</option>
+            </x-form.select>
             <x-form.input label="Password" name="password" type="password" />
             <x-form.input label="Konfirmasi Password" name="password_confirmation" type="password" />
 

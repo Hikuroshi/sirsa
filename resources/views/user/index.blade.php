@@ -1,15 +1,14 @@
 <x-layouts.app>
-    <x-slot:title>Daftar Pengguna</x-slot:title>
-
-    <x-page-header title="Daftar Pengguna">
+    <x-slot:title>{{ $title }}</x-slot:title>
+    <x-page-header :title="$title">
         <x-slot:actions>
             <x-button :href="route('user.create')">Tambah</x-button>
         </x-slot:actions>
     </x-page-header>
 
-    @if (session('success'))
-        <x-alert class="mt-4">{{ session('success') }}</x-alert>
-    @endif
+    @error('user')
+        <x-alert class="mt-4" type="error">{{ $message }}</x-alert>
+    @enderror
 
     <div class="mt-6 overflow-x-auto rounded bg-white">
         <table class="w-full text-left">
@@ -33,7 +32,11 @@
                             <div class="flex gap-3">
                                 <x-button :href="route('user.show', $user)" variant="link">Detail</x-button>
                                 <x-button :href="route('user.edit', $user)" variant="link">Edit</x-button>
-                                <form action="{{ route('user.destroy', $user) }}" method="POST">
+                                <form
+                                    action="{{ route('user.destroy', $user) }}"
+                                    method="POST"
+                                    onsubmit="return confirm(@js($deletionWarnings[$user->id]))"
+                                >
                                     @csrf
                                     @method('DELETE')
                                     <x-button type="submit" variant="danger">Hapus</x-button>

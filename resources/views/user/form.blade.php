@@ -4,7 +4,11 @@
     <x-page-header :title="$title" />
 
     <x-card class="mt-6">
-        <form class="grid gap-4" method="POST" action="{{ isset($user) ? route('user.update', $user) : route('user.store') }}">
+        <form
+            class="grid gap-4"
+            method="POST"
+            action="{{ isset($user) ? route('user.update', $user) : route('user.store') }}"
+        >
             @csrf
             @isset($user)
                 @method('PUT')
