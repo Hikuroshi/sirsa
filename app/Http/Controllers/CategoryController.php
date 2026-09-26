@@ -19,8 +19,10 @@ class CategoryController extends Controller
             ->with('organization')
             ->withCount('reports')
             ->when($request->user()->isAdmin(), fn ($query) => $query->where('organization_id', $request->user()->organization_id))
+            ->search($request->string('search')->trim()->toString())
             ->latest()
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
         return view('category.index', [
             'title' => 'Daftar Kategori',

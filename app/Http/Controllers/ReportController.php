@@ -19,7 +19,10 @@ class ReportController extends Controller
     public function index(Request $request): View
     {
         Gate::authorize('viewAny', Report::class);
-        $query = Report::query()->with(['organization', 'category'])->latest();
+        $query = Report::query()
+            ->with(['organization', 'category'])
+            ->search($request->string('search')->trim()->toString())
+            ->latest();
 
         if ($request->user()->isAdmin()) {
             $query->where('organization_id', $request->user()->organization_id);
@@ -29,7 +32,7 @@ class ReportController extends Controller
 
         return view('report.index', [
             'title' => 'Daftar Laporan',
-            'reports' => $query->paginate(15),
+            'reports' => $query->paginate(15)->withQueryString(),
         ]);
     }
 

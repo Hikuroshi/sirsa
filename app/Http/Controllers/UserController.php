@@ -15,7 +15,9 @@ class UserController extends Controller
     public function index(Request $request): View
     {
         Gate::authorize('viewAny', User::class);
-        $query = User::query()->latest();
+        $query = User::query()
+            ->search($request->string('search')->trim()->toString())
+            ->latest();
 
         if ($request->user()->isAdmin()) {
             $query->where('organization_id', $request->user()->organization_id);
@@ -29,7 +31,7 @@ class UserController extends Controller
                 ->withCount(['reports', 'verifiedReports', 'statusChanges']);
         }
 
-        $users = $query->paginate(10);
+        $users = $query->paginate(10)->withQueryString();
         $deletionWarnings = $users->getCollection()->mapWithKeys(fn (User $user): array => [
             $user->id => $this->deletionWarning($user, $request->user()->isSuperadmin()),
         ]);

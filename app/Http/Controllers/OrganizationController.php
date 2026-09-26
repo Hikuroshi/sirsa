@@ -24,8 +24,10 @@ class OrganizationController extends Controller
 
         $organizations = Organization::query()
             ->withCount(['admins', 'categories', 'reports', 'aiApiKeys'])
+            ->search($request->string('search')->trim()->toString())
             ->latest()
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
         $deletionWarnings = $organizations->getCollection()->mapWithKeys(fn (Organization $organization): array => [
             $organization->id => $this->deletionWarning($organization),
         ]);

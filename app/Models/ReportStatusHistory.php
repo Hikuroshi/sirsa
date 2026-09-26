@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Enums\ReportStatus;
 use Database\Factories\ReportStatusHistoryFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,5 +31,15 @@ class ReportStatusHistory extends Model
     public function changedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'changed_by');
+    }
+
+    #[Scope]
+    protected function search(Builder $query, string $search): Builder
+    {
+        return $query->when($search, function (Builder $query) use ($search) {
+            $query->where(function (Builder $query) use ($search) {
+                $query->whereAny(['from_status', 'to_status', 'note'], 'like', "%{$search}%");
+            });
+        });
     }
 }

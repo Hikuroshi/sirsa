@@ -20,8 +20,10 @@ class AiApiKeyController extends Controller
             ->with('modelLimit')
             ->when($request->user()->isSuperadmin(), fn ($query) => $query->whereNull('organization_id'))
             ->when($request->user()->isAdmin(), fn ($query) => $query->where('organization_id', $request->user()->organization_id))
+            ->search($request->string('search')->trim()->toString())
             ->orderBy('priority')
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
         return view('ai-key.index', [
             'title' => 'Daftar API Key',

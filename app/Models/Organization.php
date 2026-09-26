@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Enums\Role;
 use Database\Factories\OrganizationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -52,5 +54,15 @@ class Organization extends Model
     public function aiApiKeys(): HasMany
     {
         return $this->hasMany(AiApiKey::class);
+    }
+
+    #[Scope]
+    protected function search(Builder $query, string $search): Builder
+    {
+        return $query->when($search, function (Builder $query) use ($search) {
+            $query->where(function (Builder $query) use ($search) {
+                $query->whereAny(['name', 'slug', 'description'], 'like', "%{$search}%");
+            });
+        });
     }
 }

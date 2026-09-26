@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Database\Factories\AiUsageBucketFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,5 +25,15 @@ class AiUsageBucket extends Model
     public function aiApiKey(): BelongsTo
     {
         return $this->belongsTo(AiApiKey::class);
+    }
+
+    #[Scope]
+    protected function search(Builder $query, string $search): Builder
+    {
+        return $query->when($search, function (Builder $query) use ($search) {
+            $query->where(function (Builder $query) use ($search) {
+                $query->whereAny(['window'], 'like', "%{$search}%");
+            });
+        });
     }
 }

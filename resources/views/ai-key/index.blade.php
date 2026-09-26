@@ -6,7 +6,9 @@
         </x-slot:actions>
     </x-page-header>
 
-    <div class="mt-6 overflow-x-auto rounded bg-white">
+    <x-search placeholder="Cari nama atau akhiran API key..." />
+
+    <div class="mt-4 overflow-x-auto rounded bg-white">
         <table class="w-full text-left">
             <thead class="border-b bg-gray-50">
                 <tr>

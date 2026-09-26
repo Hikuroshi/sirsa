@@ -7,6 +7,8 @@ use App\Enums\ReportPriority;
 use App\Enums\ReportStatus;
 use Database\Factories\ReportFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -73,5 +75,15 @@ class Report extends Model
     public function statusHistories(): HasMany
     {
         return $this->hasMany(ReportStatusHistory::class)->oldest();
+    }
+
+    #[Scope]
+    protected function search(Builder $query, string $search): Builder
+    {
+        return $query->when($search, function (Builder $query) use ($search) {
+            $query->where(function (Builder $query) use ($search) {
+                $query->whereAny(['tracking_code', 'reporter_name', 'reporter_contact', 'original_description', 'description'], 'like', "%{$search}%");
+            });
+        });
     }
 }

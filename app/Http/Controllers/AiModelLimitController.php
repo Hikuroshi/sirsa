@@ -18,7 +18,13 @@ class AiModelLimitController extends Controller
 
         return view('ai-model-limit.index', [
             'title' => 'Daftar Model AI',
-            'limits' => AiModelLimit::query()->withCount('apiKeys')->orderBy('provider')->orderBy('model')->paginate(15),
+            'limits' => AiModelLimit::query()
+                ->withCount('apiKeys')
+                ->search($request->string('search')->trim()->toString())
+                ->orderBy('provider')
+                ->orderBy('model')
+                ->paginate(15)
+                ->withQueryString(),
         ]);
     }
 

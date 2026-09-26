@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Database\Factories\ImageFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -33,5 +35,15 @@ class Image extends Model
     public function url(): string
     {
         return Storage::url($this->path);
+    }
+
+    #[Scope]
+    protected function search(Builder $query, string $search): Builder
+    {
+        return $query->when($search, function (Builder $query) use ($search) {
+            $query->where(function (Builder $query) use ($search) {
+                $query->whereAny(['path'], 'like', "%{$search}%");
+            });
+        });
     }
 }

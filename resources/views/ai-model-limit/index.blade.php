@@ -10,7 +10,9 @@
         <x-alert class="mt-4" type="error">{{ $message }}</x-alert>
     @enderror
 
-    <div class="mt-6 overflow-x-auto rounded bg-white">
+    <x-search placeholder="Cari provider atau model..." />
+
+    <div class="mt-4 overflow-x-auto rounded bg-white">
         <table class="w-full text-left">
             <thead class="border-b bg-gray-50">
                 <tr>

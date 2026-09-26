@@ -5,6 +5,8 @@ namespace App\Models;
 use Database\Factories\AiApiKeyFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -51,5 +53,15 @@ class AiApiKey extends Model
             'rpd' => $this->rpd ?? $this->modelLimit->rpd,
             'tpm' => $this->tpm ?? $this->modelLimit->tpm,
         ];
+    }
+
+    #[Scope]
+    protected function search(Builder $query, string $search): Builder
+    {
+        return $query->when($search, function (Builder $query) use ($search) {
+            $query->where(function (Builder $query) use ($search) {
+                $query->whereAny(['name', 'suffix'], 'like', "%{$search}%");
+            });
+        });
     }
 }
