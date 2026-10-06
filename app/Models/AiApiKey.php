@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['organization_id', 'ai_model_limit_id', 'name', 'secret', 'suffix', 'priority', 'is_active', 'rpm', 'rpd', 'tpm', 'cooldown_until', 'failure_count', 'last_used_at', 'last_error'])]
+#[Fillable(['ai_model_limit_id', 'name', 'secret', 'suffix', 'priority', 'is_active', 'rpm', 'rpd', 'tpm', 'cooldown_until', 'failure_count', 'last_used_at', 'last_error'])]
 #[Hidden(['secret'])]
 class AiApiKey extends Model
 {
@@ -28,11 +28,6 @@ class AiApiKey extends Model
             'cooldown_until' => 'datetime',
             'last_used_at' => 'datetime',
         ];
-    }
-
-    public function organization(): BelongsTo
-    {
-        return $this->belongsTo(Organization::class);
     }
 
     public function modelLimit(): BelongsTo

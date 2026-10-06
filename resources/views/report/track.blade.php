@@ -3,7 +3,7 @@
     <x-page-header title="Pelacakan Laporan" />
     <x-card class="mt-6 grid gap-3">
         <p><strong>Kode:</strong> {{ $report->tracking_code }}</p>
-        <p><strong>Organisasi:</strong> {{ $report->organization->name }}</p>
+        <p><strong>Instansi:</strong> {{ config('app.name') }}</p>
         <p><strong>Status:</strong> <x-badge>{{ $report->status->label() }}</x-badge></p>
         <p><strong>AI:</strong> <x-badge>{{ $report->ai_status->label() }}</x-badge></p>
         @if ($report->verified_at)
@@ -19,7 +19,7 @@
                 @endforeach
             </div>
         @else
-            <p class="text-gray-600">Laporan sedang ditinjau oleh organisasi.</p>
+            <p class="text-gray-600">Laporan sedang ditinjau oleh admin {{ config('app.name') }}.</p>
         @endif
     </x-card>
     <x-card class="mt-4">

@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
-#[Fillable(['organization_id', 'reporter_id', 'category_id', 'verified_by', 'tracking_code', 'reporter_name', 'reporter_contact', 'original_description', 'description', 'priority', 'status', 'ai_status', 'verified_at', 'ai_cancelled_at', 'ai_processed_at'])]
+#[Fillable(['reporter_id', 'category_id', 'verified_by', 'tracking_code', 'reporter_name', 'reporter_contact', 'original_description', 'description', 'priority', 'status', 'ai_status', 'verified_at', 'ai_cancelled_at', 'ai_processed_at'])]
 class Report extends Model
 {
     /** @use HasFactory<ReportFactory> */
@@ -40,11 +40,6 @@ class Report extends Model
             'ai_cancelled_at' => 'datetime',
             'ai_processed_at' => 'datetime',
         ];
-    }
-
-    public function organization(): BelongsTo
-    {
-        return $this->belongsTo(Organization::class);
     }
 
     public function reporter(): BelongsTo

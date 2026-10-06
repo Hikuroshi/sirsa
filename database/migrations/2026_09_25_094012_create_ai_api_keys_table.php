@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('ai_api_keys', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('organization_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignUuid('ai_model_limit_id')->constrained()->restrictOnDelete();
             $table->string('name');
             $table->text('secret');
@@ -29,7 +28,7 @@ return new class extends Migration
             $table->text('last_error')->nullable();
             $table->timestamps();
 
-            $table->index(['organization_id', 'ai_model_limit_id', 'is_active', 'priority'], 'ai_keys_selection_index');
+            $table->index(['ai_model_limit_id', 'is_active', 'priority'], 'ai_keys_selection_index');
         });
 
         Schema::table('report_ai_results', function (Blueprint $table) {

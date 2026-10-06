@@ -9,10 +9,6 @@
                 <dd>{{ $category->name }}</dd>
             </div>
             <div>
-                <dt class="font-semibold">Organisasi</dt>
-                <dd>{{ $category->organization->name }}</dd>
-            </div>
-            <div>
                 <dt class="font-semibold">Deskripsi</dt>
                 <dd>{{ $category->description ?: '-' }}</dd>
             </div>

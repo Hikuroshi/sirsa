@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\AiStatus;
 use App\Enums\ReportPriority;
 use App\Enums\ReportStatus;
+use App\Models\Category;
 use App\Models\Report;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,13 +21,11 @@ class ReportController extends Controller
     {
         Gate::authorize('viewAny', Report::class);
         $query = Report::query()
-            ->with(['organization', 'category'])
+            ->with('category')
             ->search($request->string('search')->trim()->toString())
             ->latest();
 
-        if ($request->user()->isAdmin()) {
-            $query->where('organization_id', $request->user()->organization_id);
-        } elseif (! $request->user()->isSuperadmin()) {
+        if (! $request->user()->isAdmin()) {
             $query->where('reporter_id', $request->user()->id);
         }
 
@@ -39,13 +38,14 @@ class ReportController extends Controller
     public function show(Report $report): View
     {
         Gate::authorize('view', $report);
-        $report->load(['organization.categories', 'category', 'images', 'aiResult.category', 'statusHistories.changedBy']);
+        $report->load(['category', 'images', 'aiResult.category', 'statusHistories.changedBy']);
 
         return view('report.show', [
             'title' => 'Laporan',
             'report' => $report,
             'priorities' => ReportPriority::cases(),
             'statuses' => ReportStatus::cases(),
+            'categories' => Category::query()->where('is_active', true)->orderBy('name')->get(),
         ]);
     }
 
@@ -54,7 +54,7 @@ class ReportController extends Controller
         Gate::authorize('update', $report);
         $validated = $request->validate([
             'description' => ['required', 'string', 'min:20', 'max:10000'],
-            'category_id' => ['nullable', Rule::exists('categories', 'id')->where('organization_id', $report->organization_id)],
+            'category_id' => ['nullable', Rule::exists('categories', 'id')],
             'priority' => ['required', Rule::enum(ReportPriority::class)],
             'status' => ['required', Rule::enum(ReportStatus::class)],
             'note' => ['nullable', 'string', 'max:2000'],

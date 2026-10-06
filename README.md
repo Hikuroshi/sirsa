@@ -1,6 +1,6 @@
 # SIRSA
 
-SIRSA adalah aplikasi berbasis Laravel 13.
+SIRSA adalah aplikasi pengaduan Desa Pangkah berbasis Laravel 13.
 
 ## Requirement
 

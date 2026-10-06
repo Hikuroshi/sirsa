@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('reports', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('organization_id')->constrained()->cascadeOnDelete();
             $table->foreignUuid('reporter_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignUuid('category_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignUuid('verified_by')->nullable()->constrained('users')->nullOnDelete();
@@ -30,7 +29,7 @@ return new class extends Migration
             $table->timestamp('ai_processed_at')->nullable();
             $table->timestamps();
 
-            $table->index(['organization_id', 'status', 'created_at']);
+            $table->index(['status', 'created_at']);
             $table->index(['reporter_id', 'created_at']);
         });
     }

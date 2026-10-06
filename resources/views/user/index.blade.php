@@ -2,7 +2,7 @@
     <x-slot:title>{{ $title }}</x-slot:title>
     <x-page-header :title="$title">
         <x-slot:actions>
-            <x-button :href="route('user.create')">Tambah</x-button>
+            <x-button :href="route('user.create')">Tambah Admin</x-button>
         </x-slot:actions>
     </x-page-header>
 
@@ -19,7 +19,6 @@
                     <th class="p-3">Nama</th>
                     <th class="p-3">Username</th>
                     <th class="p-3">Email</th>
-                    <th class="p-3">Role</th>
                     <th class="p-3">Aksi</th>
                 </tr>
             </thead>
@@ -29,7 +28,6 @@
                         <td class="p-3">{{ $user->name }}</td>
                         <td class="p-3">{{ $user->username }}</td>
                         <td class="p-3">{{ $user->email }}</td>
-                        <td class="p-3">{{ $user->role->label() }}</td>
                         <td class="p-3">
                             <div class="flex gap-3">
                                 <x-button :href="route('user.show', $user)" variant="link">Detail</x-button>
@@ -48,7 +46,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td class="p-3 text-center text-gray-500" colspan="5">Belum ada pengguna.</td>
+                        <td class="p-3 text-center text-gray-500" colspan="4">Belum ada admin.</td>
                     </tr>
                 @endforelse
             </tbody>

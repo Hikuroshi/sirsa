@@ -10,18 +10,12 @@ class AiApiKeyPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isSuperadmin() || ($user->isAdmin() && $user->organization_id !== null);
+        return $user->isAdmin();
     }
 
     public function view(User $user, AiApiKey $aiApiKey): Response
     {
-        $allowed = $user->isSuperadmin()
-            ? $aiApiKey->organization_id === null
-            : $user->isAdmin()
-                && $user->organization_id !== null
-                && $user->organization_id === $aiApiKey->organization_id;
-
-        return $allowed ? Response::allow() : Response::denyAsNotFound();
+        return $user->isAdmin() ? Response::allow() : Response::denyAsNotFound();
     }
 
     public function create(User $user): bool

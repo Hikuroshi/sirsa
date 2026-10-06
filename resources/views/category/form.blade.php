@@ -13,21 +13,6 @@
                 @method('PUT')
             @endisset
 
-            @if (isset($category))
-                <div>
-                    <p class="text-sm text-gray-500">Organisasi</p>
-                    <p>{{ $category->organization->name }}</p>
-                </div>
-            @elseif (auth()->user()->isSuperadmin())
-                <x-form.select label="Organisasi" name="organization_id">
-                    @foreach ($organizations as $organization)
-                        <option value="{{ $organization->id }}" @selected(old('organization_id') === $organization->id)>
-                            {{ $organization->name }}
-                        </option>
-                    @endforeach
-                </x-form.select>
-            @endif
-
             <x-form.input label="Nama" name="name" :value="$category->name ?? ''" />
             <x-form.textarea label="Deskripsi" name="description" :value="$category->description ?? ''" />
             <x-form.checkbox label="Aktif" name="is_active" :checked="$category->is_active ?? true" />

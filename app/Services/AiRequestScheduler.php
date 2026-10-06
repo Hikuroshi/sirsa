@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\AiApiKey;
 use App\Models\AiModelLimit;
 use App\Models\AiUsageBucket;
-use App\Models\Organization;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -13,23 +12,23 @@ use Illuminate\Support\Str;
 
 class AiRequestScheduler
 {
-    public function hasConfiguration(Organization $organization): bool
+    public function hasConfiguration(): bool
     {
-        return $this->availableKeys($organization)->exists();
+        return $this->availableKeys()->exists();
     }
 
-    public function preferredModelLimit(Organization $organization): ?AiModelLimit
+    public function preferredModelLimit(): ?AiModelLimit
     {
-        return $this->availableKeys($organization)
+        return $this->availableKeys()
             ->with('modelLimit')
             ->first()
             ?->modelLimit;
     }
 
-    public function reserve(Organization $organization, AiModelLimit $modelLimit, int $estimatedTokens): AiReservation
+    public function reserve(AiModelLimit $modelLimit, int $estimatedTokens): AiReservation
     {
         /** @var Collection<int, AiApiKey> $keys */
-        $keys = $this->availableKeys($organization)
+        $keys = $this->availableKeys()
             ->whereBelongsTo($modelLimit, 'modelLimit')
             ->where(fn ($query) => $query
                 ->whereNull('cooldown_until')
@@ -82,14 +81,10 @@ class AiRequestScheduler
     }
 
     /** @return Builder<AiApiKey> */
-    private function availableKeys(Organization $organization): Builder
+    private function availableKeys(): Builder
     {
         return AiApiKey::query()
             ->where('is_active', true)
-            ->where(fn ($query) => $query
-                ->where('organization_id', $organization->id)
-                ->orWhereNull('organization_id'))
-            ->orderByRaw('CASE WHEN organization_id = ? THEN 0 ELSE 1 END', [$organization->id])
             ->orderBy('priority');
     }
 

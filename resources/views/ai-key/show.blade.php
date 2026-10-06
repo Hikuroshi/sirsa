@@ -22,10 +22,6 @@
                 <dd>{{ $key->modelLimit->model }}</dd>
             </div>
             <div>
-                <dt class="font-semibold">Cakupan</dt>
-                <dd>{{ $key->organization?->name ?? 'Global' }}</dd>
-            </div>
-            <div>
                 <dt class="font-semibold">Status</dt>
                 <dd>{{ $key->is_active ? 'Aktif' : 'Tidak aktif' }}</dd>
             </div>

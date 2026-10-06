@@ -9,7 +9,6 @@
             <thead class="border-b bg-gray-50">
                 <tr>
                     <th class="p-3">Pelapor</th>
-                    <th class="p-3">Organisasi</th>
                     <th class="p-3">Status</th>
                     <th class="p-3">AI</th>
                     <th class="p-3">Prioritas</th>
@@ -20,7 +19,6 @@
                 @forelse ($reports as $report)
                     <tr class="border-b">
                         <td class="p-3">{{ $report->reporter_name }}</td>
-                        <td class="p-3">{{ $report->organization->name }}</td>
                         <td class="p-3"><x-badge>{{ $report->status->label() }}</x-badge></td>
                         <td class="p-3"><x-badge>{{ $report->ai_status->label() }}</x-badge></td>
                         <td class="p-3"><x-badge>{{ $report->priority->label() }}</x-badge></td>
@@ -30,7 +28,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td class="p-3 text-center text-gray-500" colspan="6">Belum ada laporan.</td>
+                        <td class="p-3 text-center text-gray-500" colspan="5">Belum ada laporan.</td>
                     </tr>
                 @endforelse
             </tbody>

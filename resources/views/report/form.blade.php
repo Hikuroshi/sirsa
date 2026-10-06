@@ -1,11 +1,10 @@
 <x-layouts.app>
     <x-slot:title>Kirim Laporan</x-slot:title>
     <x-card class="mx-auto max-w-2xl">
-        <h1 class="text-2xl font-semibold">Lapor ke {{ $organization->name }}</h1>
-        <p class="mt-2 text-gray-600">{{ $organization->description }}</p>
+        <h1 class="text-2xl font-semibold">Lapor ke {{ config('app.name') }}</h1>
         <form
             class="mt-6 grid gap-4"
-            action="{{ route('public-reports.store', $organization) }}"
+            action="{{ route('public-reports.store') }}"
             method="POST"
             enctype="multipart/form-data"
         >

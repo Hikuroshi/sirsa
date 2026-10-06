@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>{{ $title }} | {{ config('app.name', 'SIRSA') }}</title>
+    <title>{{ $title }} | {{ config('app.name') }}</title>
 
     @fonts
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -13,16 +13,14 @@
 <body class="bg-gray-100 text-gray-900">
     <nav class="border-b bg-white">
         <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 p-4">
-            <a class="font-semibold" href="{{ route('home') }}">SIRSA</a>
+            <a class="font-semibold" href="{{ route('home') }}">{{ config('app.name') }}</a>
             <div class="flex items-center gap-4 text-sm">
                 @auth
                     <a href="{{ route('dashboard') }}">Dashboard</a>
                     <a href="{{ route('reports.index') }}">Laporan</a>
-                    @can('viewAny', App\Models\Organization::class)
-                        <a href="{{ route('organizations.index') }}">Organisasi</a>
-                    @endcan
+                    <a href="{{ route('public-reports.create') }}">Buat Laporan</a>
                     @can('viewAny', App\Models\User::class)
-                        <a href="{{ route('user.index') }}">Pengguna</a>
+                        <a href="{{ route('user.index') }}">Admin</a>
                     @endcan
                     @can('viewAny', App\Models\Category::class)
                         <a href="{{ route('categories.index') }}">Kategori</a>
@@ -38,6 +36,7 @@
                         <button type="submit">Logout</button>
                     </form>
                 @else
+                    <a href="{{ route('public-reports.create') }}">Buat Laporan</a>
                     <a href="{{ route('login') }}">Login</a>
                     <a href="{{ route('register') }}">Register</a>
                 @endauth

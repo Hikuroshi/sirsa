@@ -40,7 +40,7 @@
                     />
                     <x-form.select label="Kategori" name="category_id">
                         <option value="">Tanpa kategori</option>
-                        @foreach ($report->organization->categories as $category)
+                        @foreach ($categories as $category)
                             <option
                                 value="{{ $category->id }}"
                                 @selected(old('category_id', $report->category_id) === $category->id)

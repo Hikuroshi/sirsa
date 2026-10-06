@@ -18,8 +18,6 @@ class AiApiKeyController extends Controller
         Gate::authorize('viewAny', AiApiKey::class);
         $keys = AiApiKey::query()
             ->with('modelLimit')
-            ->when($request->user()->isSuperadmin(), fn ($query) => $query->whereNull('organization_id'))
-            ->when($request->user()->isAdmin(), fn ($query) => $query->where('organization_id', $request->user()->organization_id))
             ->search($request->string('search')->trim()->toString())
             ->orderBy('priority')
             ->paginate(15)
@@ -47,7 +45,6 @@ class AiApiKeyController extends Controller
         $validated = $this->validateKey($request, true);
         AiApiKey::create([
             ...$validated,
-            'organization_id' => $request->user()->isAdmin() ? $request->user()->organization_id : null,
             'suffix' => mb_substr($validated['secret'], -4),
             'is_active' => $request->boolean('is_active'),
         ]);
@@ -58,7 +55,7 @@ class AiApiKeyController extends Controller
     public function show(Request $request, AiApiKey $aiKey): View
     {
         Gate::authorize('view', $aiKey);
-        $aiKey->load(['modelLimit', 'organization']);
+        $aiKey->load('modelLimit');
 
         return view('ai-key.show', [
             'title' => 'Detail API Key',

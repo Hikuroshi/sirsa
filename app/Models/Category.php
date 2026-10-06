@@ -9,10 +9,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['organization_id', 'name', 'description', 'is_active'])]
+#[Fillable(['name', 'description', 'is_active'])]
 class Category extends Model
 {
     /** @use HasFactory<CategoryFactory> */
@@ -21,11 +20,6 @@ class Category extends Model
     protected function casts(): array
     {
         return ['is_active' => 'boolean'];
-    }
-
-    public function organization(): BelongsTo
-    {
-        return $this->belongsTo(Organization::class);
     }
 
     public function reports(): HasMany

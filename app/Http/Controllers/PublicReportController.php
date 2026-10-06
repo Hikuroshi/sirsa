@@ -6,7 +6,6 @@ use App\Enums\AiStatus;
 use App\Enums\ReportPriority;
 use App\Enums\ReportStatus;
 use App\Jobs\AnalyzeReport;
-use App\Models\Organization;
 use App\Models\Report;
 use App\Services\AiRequestScheduler;
 use Illuminate\Http\RedirectResponse;
@@ -20,19 +19,15 @@ use Throwable;
 
 class PublicReportController extends Controller
 {
-    public function create(Organization $organization): View
+    public function create(): View
     {
-        abort_unless($organization->is_active, 404);
-
         return view('report.form', [
             'title' => 'Laporkan',
-            'organization' => $organization,
         ]);
     }
 
-    public function store(Request $request, Organization $organization, AiRequestScheduler $scheduler): RedirectResponse
+    public function store(Request $request, AiRequestScheduler $scheduler): RedirectResponse
     {
-        abort_unless($organization->is_active, 404);
         $validated = $request->validate([
             'reporter_name' => ['required', 'string', 'max:255'],
             'reporter_contact' => ['nullable', 'string', 'max:255'],
@@ -41,12 +36,12 @@ class PublicReportController extends Controller
             'photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ]);
 
-        $aiEnabled = $scheduler->hasConfiguration($organization);
+        $aiEnabled = $scheduler->hasConfiguration();
         $storedImages = [];
 
         try {
-            $report = DB::transaction(function () use ($request, $organization, $validated, $aiEnabled, &$storedImages): Report {
-                $report = $organization->reports()->create([
+            $report = DB::transaction(function () use ($request, $validated, $aiEnabled, &$storedImages): Report {
+                $report = Report::create([
                     'reporter_id' => Auth::id(),
                     'tracking_code' => Str::lower(Str::random(24)),
                     'reporter_name' => $validated['reporter_name'],
@@ -88,7 +83,7 @@ class PublicReportController extends Controller
     {
         $report = Report::query()
             ->where('tracking_code', $trackingCode)
-            ->with(['organization', 'category', 'images', 'statusHistories.changedBy'])
+            ->with(['category', 'images', 'statusHistories.changedBy'])
             ->firstOrFail();
 
         return view('report.track', [

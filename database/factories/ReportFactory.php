@@ -5,7 +5,6 @@ namespace Database\Factories;
 use App\Enums\AiStatus;
 use App\Enums\ReportPriority;
 use App\Enums\ReportStatus;
-use App\Models\Organization;
 use App\Models\Report;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -23,7 +22,6 @@ class ReportFactory extends Factory
     public function definition(): array
     {
         return [
-            'organization_id' => Organization::factory(),
             'tracking_code' => Str::lower(Str::random(24)),
             'reporter_name' => fake()->name(),
             'reporter_contact' => fake()->safeEmail(),

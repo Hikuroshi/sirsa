@@ -15,8 +15,7 @@ class ReportPolicy
 
     public function view(User $user, Report $report): Response
     {
-        return $user->isSuperadmin()
-            || ($user->isAdmin() && $user->organization_id === $report->organization_id)
+        return $user->isAdmin()
             || $user->id === $report->reporter_id
                 ? Response::allow()
                 : Response::denyAsNotFound();
@@ -29,7 +28,7 @@ class ReportPolicy
 
     public function update(User $user, Report $report): Response
     {
-        return $user->isSuperadmin() || ($user->isAdmin() && $user->organization_id === $report->organization_id)
+        return $user->isAdmin()
             ? Response::allow()
             : Response::denyAsNotFound();
     }

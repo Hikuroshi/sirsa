@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Category;
 use App\Models\Report;
 use Illuminate\Filesystem\Filesystem;
 
@@ -11,9 +12,7 @@ class ReportAnalysisPrompt
 
     public function render(Report $report): string
     {
-        $report->loadMissing(['organization.categories' => fn ($query) => $query->where('is_active', true)]);
-
-        $categories = $report->organization->categories
+        $categories = Category::query()->where('is_active', true)->orderBy('name')->get()
             ->map(fn ($category): string => "{$category->id}: {$category->name}")
             ->implode("\n");
 

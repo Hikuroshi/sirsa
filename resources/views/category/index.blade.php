@@ -14,9 +14,6 @@
             <thead class="border-b bg-gray-50">
                 <tr>
                     <th class="p-3">Nama</th>
-                    @if (auth()->user()->isSuperadmin())
-                        <th class="p-3">Organisasi</th>
-                    @endif
                     <th class="p-3">Status</th>
                     <th class="p-3">Laporan</th>
                     <th class="p-3">Aksi</th>
@@ -26,9 +23,6 @@
                 @forelse ($categories as $category)
                     <tr class="border-b">
                         <td class="p-3">{{ $category->name }}</td>
-                        @if (auth()->user()->isSuperadmin())
-                            <td class="p-3">{{ $category->organization->name }}</td>
-                        @endif
                         <td class="p-3"><x-badge>{{ $category->is_active ? 'Aktif' : 'Tidak aktif' }}</x-badge></td>
                         <td class="p-3">{{ $category->reports_count }}</td>
                         <td class="p-3">
@@ -49,7 +43,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td class="p-3 text-center text-gray-500" colspan="5">Belum ada kategori.</td>
+                        <td class="p-3 text-center text-gray-500" colspan="4">Belum ada kategori.</td>
                     </tr>
                 @endforelse
             </tbody>

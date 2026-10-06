@@ -4,6 +4,7 @@ namespace App\Services\Providers;
 
 use App\Contracts\AiProvider;
 use App\Models\AiApiKey;
+use App\Models\Category;
 use App\Models\Report;
 use App\Services\ReportAnalysisPrompt;
 use Illuminate\Support\Facades\Http;
@@ -21,7 +22,7 @@ class GeminiAiProvider implements AiProvider
 
     public function analyze(Report $report, AiApiKey $apiKey): array
     {
-        $report->loadMissing(['organization.categories' => fn ($query) => $query->where('is_active', true), 'images']);
+        $report->loadMissing('images');
 
         $input = [[
             'type' => 'text',
@@ -58,8 +59,10 @@ class GeminiAiProvider implements AiProvider
             ->json();
 
         $result = json_decode($this->outputText($response), true, flags: JSON_THROW_ON_ERROR);
-        $categoryIds = $report->organization->categories->pluck('id');
-        $categoryId = $categoryIds->contains($result['category_id'] ?? null) ? $result['category_id'] : null;
+        $categoryId = Category::query()
+            ->where('is_active', true)
+            ->whereKey($result['category_id'] ?? null)
+            ->value('id');
         [$inputTokens, $outputTokens] = $this->tokenUsage($response);
 
         return [

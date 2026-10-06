@@ -40,13 +40,13 @@ class AnalyzeReport implements ShouldBeUnique, ShouldQueue
 
     public function handle(AiRequestScheduler $scheduler, AiProviderRegistry $providers): void
     {
-        $report = $this->report->fresh(['organization.categories', 'images']);
+        $report = $this->report->fresh(['images']);
 
         if ($report === null || $report->ai_cancelled_at !== null || $report->verified_at !== null) {
             return;
         }
 
-        $modelLimit = $scheduler->preferredModelLimit($report->organization);
+        $modelLimit = $scheduler->preferredModelLimit();
 
         if ($modelLimit === null) {
             Report::query()
@@ -60,7 +60,7 @@ class AnalyzeReport implements ShouldBeUnique, ShouldQueue
 
         $provider = $providers->resolve($modelLimit->provider);
         $estimatedTokens = $provider->estimateTokens($report);
-        $reservation = $scheduler->reserve($report->organization, $modelLimit, $estimatedTokens);
+        $reservation = $scheduler->reserve($modelLimit, $estimatedTokens);
 
         if (! $reservation->isAvailable()) {
             $this->release($reservation->retryAfter);
