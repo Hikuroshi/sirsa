@@ -15,7 +15,6 @@
 
             <x-form.input label="Nama" name="name" :value="$category->name ?? ''" />
             <x-form.textarea label="Deskripsi" name="description" :value="$category->description ?? ''" />
-            <x-form.checkbox label="Aktif" name="is_active" :checked="$category->is_active ?? true" />
 
             <div class="flex gap-3">
                 <x-button type="submit">Simpan</x-button>

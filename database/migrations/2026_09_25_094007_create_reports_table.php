@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignUuid('reporter_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignUuid('category_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignUuid('verified_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->string('tracking_code', 32)->unique();
             $table->string('reporter_name');
             $table->string('reporter_contact')->nullable();
             $table->text('original_description');

@@ -209,7 +209,6 @@ return [
         'slug' => 'slug',
         'organization_id' => 'organisasi',
         'description' => 'deskripsi',
-        'is_active' => 'status aktif',
         'provider' => 'provider AI',
         'model' => 'model AI',
         'ai_model_limit_id' => 'model AI',

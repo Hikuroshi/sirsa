@@ -18,6 +18,17 @@
             <x-form.input label="Username" name="username" :value="$user->username ?? ''" />
             <x-form.input label="Email" name="email" type="email" :value="$user->email ?? ''" />
 
+            <x-form.select label="Peran" name="role">
+                @foreach ($roles as $role)
+                    <option
+                        value="{{ $role->value }}"
+                        @selected(old('role', $user->role->value ?? App\Enums\Role::Reporter->value) === $role->value)
+                    >
+                        {{ $role->label() }}
+                    </option>
+                @endforeach
+            </x-form.select>
+
             <x-form.input :label="isset($user) ? 'Password (opsional)' : 'Password'" name="password" type="password" />
             <x-form.input label="Konfirmasi Password" name="password_confirmation" type="password" />
 

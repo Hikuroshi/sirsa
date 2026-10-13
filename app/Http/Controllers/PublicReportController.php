@@ -13,7 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Throwable;
 
@@ -43,7 +42,6 @@ class PublicReportController extends Controller
             $report = DB::transaction(function () use ($request, $validated, $aiEnabled, &$storedImages): Report {
                 $report = Report::create([
                     'reporter_id' => Auth::id(),
-                    'tracking_code' => Str::lower(Str::random(24)),
                     'reporter_name' => $validated['reporter_name'],
                     'reporter_contact' => $validated['reporter_contact'] ?? null,
                     'original_description' => $validated['description'],
@@ -54,7 +52,7 @@ class PublicReportController extends Controller
                 ]);
 
                 foreach ($request->file('photos', []) as $index => $photo) {
-                    $path = $photo->store("reports/{$report->id}", 'public');
+                    $path = $photo->store("reports/{$report->id}");
                     $storedImages[] = $path;
                     $report->images()->create([
                         'path' => $path,
@@ -75,20 +73,18 @@ class PublicReportController extends Controller
             throw $exception;
         }
 
-        return redirect()->route('reports.track', $report->tracking_code)
-            ->with('success', 'Laporan berhasil dikirim. Simpan kode pelacakan Anda.');
+        return redirect()->route('reports.track', $report)
+            ->with('success', 'Laporan berhasil dikirim. Simpan ID laporan Anda.');
     }
 
-    public function track(string $trackingCode): View
+    public function track(Report $report): View
     {
-        $report = Report::query()
-            ->where('tracking_code', $trackingCode)
-            ->with(['category', 'images', 'statusHistories.changedBy'])
-            ->firstOrFail();
+        $report->load(['category', 'images', 'aiResult', 'statusHistories']);
 
-        return view('report.track', [
-            'title' => 'Laporan',
+        return view('report.show', [
+            'title' => 'Pelacakan Laporan',
             'report' => $report,
+            'tracking' => true,
         ]);
     }
 }

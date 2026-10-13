@@ -12,24 +12,18 @@
 
 <body class="bg-gray-100 text-gray-900">
     <nav class="border-b bg-white">
-        <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 p-4">
+        <div class="mx-auto flex max-w-6xl flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
             <a class="font-semibold" href="{{ route('home') }}">{{ config('app.name') }}</a>
-            <div class="flex items-center gap-4 text-sm">
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm sm:justify-end">
                 @auth
                     <a href="{{ route('dashboard') }}">Dashboard</a>
                     <a href="{{ route('reports.index') }}">Laporan</a>
                     <a href="{{ route('public-reports.create') }}">Buat Laporan</a>
                     @can('viewAny', App\Models\User::class)
-                        <a href="{{ route('user.index') }}">Admin</a>
+                        <a href="{{ route('user.index') }}">Pengguna</a>
                     @endcan
                     @can('viewAny', App\Models\Category::class)
                         <a href="{{ route('categories.index') }}">Kategori</a>
-                    @endcan
-                    @can('viewAny', App\Models\AiApiKey::class)
-                        <a href="{{ route('ai-keys.index') }}">API Key</a>
-                    @endcan
-                    @can('viewAny', App\Models\AiModelLimit::class)
-                        <a href="{{ route('ai-model-limits.index') }}">Model AI</a>
                     @endcan
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf

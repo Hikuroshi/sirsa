@@ -41,10 +41,7 @@ class CategoryController extends Controller
         Gate::authorize('create', Category::class);
         $validated = $this->validateCategory($request);
 
-        Category::create([
-            ...$validated,
-            'is_active' => $request->boolean('is_active'),
-        ]);
+        Category::create($validated);
 
         return redirect()->route('categories.index')->with('success', 'Kategori berhasil dibuat.');
     }
@@ -74,10 +71,7 @@ class CategoryController extends Controller
     {
         Gate::authorize('update', $category);
         $validated = $this->validateCategory($request, $category);
-        $category->update([
-            ...$validated,
-            'is_active' => $request->boolean('is_active'),
-        ]);
+        $category->update($validated);
 
         return redirect()->route('categories.index')->with('success', 'Kategori berhasil diperbarui.');
     }
@@ -101,7 +95,6 @@ class CategoryController extends Controller
                 Rule::unique('categories')->ignore($category),
             ],
             'description' => ['nullable', 'string', 'max:1000'],
-            'is_active' => ['boolean'],
         ]);
     }
 }

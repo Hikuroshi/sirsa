@@ -18,7 +18,7 @@
                 <dd>{{ $user->email }}</dd>
             </div>
             <div>
-                <dt class="font-semibold">Role</dt>
+                <dt class="font-semibold">Peran</dt>
                 <dd>{{ $user->role->label() }}</dd>
             </div>
         </dl>

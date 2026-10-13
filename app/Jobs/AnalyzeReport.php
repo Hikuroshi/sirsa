@@ -46,9 +46,7 @@ class AnalyzeReport implements ShouldBeUnique, ShouldQueue
             return;
         }
 
-        $modelLimit = $scheduler->preferredModelLimit();
-
-        if ($modelLimit === null) {
+        if (! $scheduler->hasConfiguration()) {
             Report::query()
                 ->whereKey($report->id)
                 ->whereNull('ai_cancelled_at')
@@ -58,15 +56,28 @@ class AnalyzeReport implements ShouldBeUnique, ShouldQueue
             return;
         }
 
-        $provider = $providers->resolve($modelLimit->provider);
-        $estimatedTokens = $provider->estimateTokens($report);
-        $reservation = $scheduler->reserve($modelLimit, $estimatedTokens);
+        $reservation = $scheduler->reserve($report);
+
+        if ($reservation->impossible) {
+            Report::query()
+                ->whereKey($report->id)
+                ->whereNull('ai_cancelled_at')
+                ->whereNull('verified_at')
+                ->update([
+                    'ai_status' => AiStatus::Failed,
+                    'ai_processed_at' => now(),
+                ]);
+
+            return;
+        }
 
         if (! $reservation->isAvailable()) {
             $this->release($reservation->retryAfter);
 
             return;
         }
+
+        $provider = $providers->resolve($reservation->slot->provider);
 
         $started = Report::query()
             ->whereKey($report->id)
@@ -80,11 +91,15 @@ class AnalyzeReport implements ShouldBeUnique, ShouldQueue
 
         $report->refresh();
 
+        if ($report->ai_cancelled_at !== null || $report->verified_at !== null) {
+            return;
+        }
+
         try {
-            $result = $provider->analyze($report, $reservation->apiKey);
+            $result = $provider->analyze($report, $reservation->slot);
         } catch (Throwable) {
-            $scheduler->markFailure($reservation->apiKey);
-            $this->release(60);
+            $scheduler->markFailure($reservation->slot);
+            $this->release(1);
 
             return;
         }
@@ -105,12 +120,12 @@ class AnalyzeReport implements ShouldBeUnique, ShouldQueue
                 ['report_id' => $lockedReport->id],
                 [
                     'category_id' => $result['category_id'],
-                    'ai_api_key_id' => $reservation->apiKey->id,
+                    'slot_name' => $reservation->slot->name,
                     'refined_description' => $result['refined_description'],
                     'priority' => $result['priority'],
                     'reason' => $result['reason'],
-                    'provider' => $reservation->apiKey->modelLimit->provider,
-                    'model' => $reservation->apiKey->modelLimit->model,
+                    'provider' => $reservation->slot->provider,
+                    'model' => $reservation->slot->model,
                     'input_tokens' => $result['input_tokens'],
                     'output_tokens' => $result['output_tokens'],
                     'response' => $result['response'],
@@ -129,18 +144,20 @@ class AnalyzeReport implements ShouldBeUnique, ShouldQueue
 
     public function failed(?Throwable $exception): void
     {
-        $report = $this->report->fresh();
+        DB::transaction(function (): void {
+            $report = Report::query()->lockForUpdate()->find($this->report->id);
 
-        if ($report === null || $report->ai_cancelled_at !== null) {
-            return;
-        }
+            if ($report === null || $report->ai_cancelled_at !== null || $report->verified_at !== null || ! in_array($report->ai_status, [AiStatus::Queued, AiStatus::Processing], true)) {
+                return;
+            }
 
-        $report->update([
-            'description' => $report->original_description,
-            'category_id' => null,
-            'priority' => ReportPriority::Medium,
-            'ai_status' => AiStatus::Failed,
-            'ai_processed_at' => now(),
-        ]);
+            $report->update([
+                'description' => $report->original_description,
+                'category_id' => null,
+                'priority' => ReportPriority::Medium,
+                'ai_status' => AiStatus::Failed,
+                'ai_processed_at' => now(),
+            ]);
+        }, 3);
     }
 }

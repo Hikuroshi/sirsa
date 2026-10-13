@@ -49,6 +49,32 @@ composer run setup
 
 Perintah tersebut otomatis menginstal dependency Composer dan npm, membuat `.env`, generate application key, membuat database, menjalankan migration dan seeder, serta build asset frontend.
 
+## Konfigurasi AI (opsional)
+
+Aplikasi tetap bisa menerima laporan tanpa AI. Untuk mengaktifkannya, tambahkan satu atau beberapa blok berikut ke `.env`:
+
+```dotenv
+AI_1_NAME="Kunci utama"
+AI_1_PROVIDER=gemini
+AI_1_MODEL=nama-model-dari-provider
+AI_1_KEY=api-key-anda
+AI_1_RPM=10
+AI_1_RPD=1000
+AI_1_TPM=100000
+
+AI_2_NAME="Kunci cadangan"
+AI_2_PROVIDER=gemini
+AI_2_MODEL=nama-model-cadangan
+AI_2_KEY=api-key-cadangan
+AI_2_RPM=10
+AI_2_RPD=1000
+AI_2_TPM=100000
+```
+
+Provider yang tersedia saat ini: `gemini`. Nilai model dan limit diisi sesuai akun provider Anda; angka di atas hanya contoh. Jumlah slot tidak dibatasi. Nomor boleh melompat dan angka terkecil dicoba lebih dulu. Bila satu slot penuh atau gagal, slot berikutnya dicoba, termasuk jika provider atau modelnya berbeda. Slot yang tidak lengkap diabaikan. Jangan bagikan `.env` atau cache konfigurasi karena keduanya memuat API key.
+
+Setelah mengubah `.env` pada deployment yang memakai cache konfigurasi, jalankan `php artisan config:cache` dan mulai ulang worker queue. Laporan yang sudah berstatus `Tidak Aktif` tidak diproses AI secara otomatis.
+
 Data login bawaan dari seeder:
 
 ```text
@@ -78,4 +104,12 @@ Dari direktori proyek, ketik perintah berikut untuk hubungkan proyek ke Herd lal
 herd link
 
 herd open
+```
+
+### Menjalankan worker queue
+
+Jalankan worker queue untuk memroses laporan:
+
+```bash
+php artisan queue:work
 ```

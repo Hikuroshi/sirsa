@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
-#[Fillable(['reporter_id', 'category_id', 'verified_by', 'tracking_code', 'reporter_name', 'reporter_contact', 'original_description', 'description', 'priority', 'status', 'ai_status', 'verified_at', 'ai_cancelled_at', 'ai_processed_at'])]
+#[Fillable(['reporter_id', 'category_id', 'verified_by', 'reporter_name', 'reporter_contact', 'original_description', 'description', 'priority', 'status', 'ai_status', 'verified_at', 'ai_cancelled_at', 'ai_processed_at'])]
 class Report extends Model
 {
     /** @use HasFactory<ReportFactory> */
@@ -77,7 +77,7 @@ class Report extends Model
     {
         return $query->when($search, function (Builder $query) use ($search) {
             $query->where(function (Builder $query) use ($search) {
-                $query->whereAny(['tracking_code', 'reporter_name', 'reporter_contact', 'original_description', 'description'], 'like', "%{$search}%");
+                $query->whereAny(['id', 'reporter_name', 'reporter_contact', 'original_description', 'description'], 'like', "%{$search}%");
             });
         });
     }

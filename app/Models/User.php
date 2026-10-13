@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\Role;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -39,16 +38,6 @@ class User extends Authenticatable
     public function reports(): HasMany
     {
         return $this->hasMany(Report::class, 'reporter_id');
-    }
-
-    public function verifiedReports(): HasMany
-    {
-        return $this->hasMany(Report::class, 'verified_by');
-    }
-
-    public function statusChanges(): HasMany
-    {
-        return $this->hasMany(ReportStatusHistory::class, 'changed_by');
     }
 
     public function isAdmin(): bool

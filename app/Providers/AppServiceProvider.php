@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -24,6 +25,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        foreach (config('ai.warnings', []) as $warning) {
+            Log::warning($warning);
+        }
+
         RateLimiter::for('login', function (Request $request): Limit {
             $login = Str::transliterate(Str::lower($request->string('login')->toString()));
 

@@ -13,14 +13,15 @@ return new class extends Migration
     {
         Schema::create('ai_usage_buckets', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('ai_api_key_id')->constrained()->cascadeOnDelete();
+            $table->string('ai_key_state_id', 64);
+            $table->foreign('ai_key_state_id')->references('id')->on('ai_key_states')->cascadeOnDelete();
             $table->string('window');
             $table->timestamp('period_started_at');
             $table->unsignedInteger('requests')->default(0);
             $table->unsignedBigInteger('tokens')->default(0);
             $table->timestamps();
 
-            $table->unique(['ai_api_key_id', 'window', 'period_started_at'], 'ai_usage_window_unique');
+            $table->unique(['ai_key_state_id', 'window', 'period_started_at'], 'ai_usage_window_unique');
         });
     }
 

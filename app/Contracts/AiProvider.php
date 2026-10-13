@@ -2,8 +2,8 @@
 
 namespace App\Contracts;
 
-use App\Models\AiApiKey;
 use App\Models\Report;
+use App\Services\AiSlot;
 
 interface AiProvider
 {
@@ -12,5 +12,5 @@ interface AiProvider
     /**
      * @return array{refined_description: string, category_id: string|null, priority: string, reason: string|null, input_tokens: int, output_tokens: int, response: array<string, mixed>}
      */
-    public function analyze(Report $report, AiApiKey $apiKey): array;
+    public function analyze(Report $report, AiSlot $slot): array;
 }

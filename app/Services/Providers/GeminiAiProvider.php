@@ -3,9 +3,9 @@
 namespace App\Services\Providers;
 
 use App\Contracts\AiProvider;
-use App\Models\AiApiKey;
 use App\Models\Category;
 use App\Models\Report;
+use App\Services\AiSlot;
 use App\Services\ReportAnalysisPrompt;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -20,7 +20,7 @@ class GeminiAiProvider implements AiProvider
         return max(100, (int) ceil(mb_strlen($report->original_description) / 4) + ($report->images()->count() * 1000));
     }
 
-    public function analyze(Report $report, AiApiKey $apiKey): array
+    public function analyze(Report $report, AiSlot $slot): array
     {
         $report->loadMissing('images');
 
@@ -42,11 +42,11 @@ class GeminiAiProvider implements AiProvider
         $response = Http::connectTimeout(5)
             ->timeout(45)
             ->withHeaders([
-                'x-goog-api-key' => $apiKey->secret,
+                'x-goog-api-key' => $slot->key,
                 'Api-Revision' => '2026-05-20',
             ])
             ->post('https://generativelanguage.googleapis.com/v1beta/interactions', [
-                'model' => $apiKey->modelLimit->model,
+                'model' => $slot->model,
                 'input' => $input,
                 'store' => false,
                 'response_format' => [
@@ -60,7 +60,6 @@ class GeminiAiProvider implements AiProvider
 
         $result = json_decode($this->outputText($response), true, flags: JSON_THROW_ON_ERROR);
         $categoryId = Category::query()
-            ->where('is_active', true)
             ->whereKey($result['category_id'] ?? null)
             ->value('id');
         [$inputTokens, $outputTokens] = $this->tokenUsage($response);

@@ -14,7 +14,6 @@
             <thead class="border-b bg-gray-50">
                 <tr>
                     <th class="p-3">Nama</th>
-                    <th class="p-3">Status</th>
                     <th class="p-3">Laporan</th>
                     <th class="p-3">Aksi</th>
                 </tr>
@@ -23,10 +22,9 @@
                 @forelse ($categories as $category)
                     <tr class="border-b">
                         <td class="p-3">{{ $category->name }}</td>
-                        <td class="p-3"><x-badge>{{ $category->is_active ? 'Aktif' : 'Tidak aktif' }}</x-badge></td>
                         <td class="p-3">{{ $category->reports_count }}</td>
                         <td class="p-3">
-                            <div class="flex gap-3">
+                            <div class="flex flex-wrap gap-1">
                                 <x-button :href="route('categories.show', $category)" variant="link">Detail</x-button>
                                 <x-button :href="route('categories.edit', $category)" variant="link">Edit</x-button>
                                 <form
@@ -43,7 +41,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td class="p-3 text-center text-gray-500" colspan="4">Belum ada kategori.</td>
+                        <td class="p-3 text-center text-gray-500" colspan="3">Belum ada kategori.</td>
                     </tr>
                 @endforelse
             </tbody>

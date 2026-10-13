@@ -5,14 +5,12 @@ namespace App\Models;
 use App\Enums\ReportPriority;
 use Database\Factories\ReportAiResultFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Scope;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['report_id', 'category_id', 'ai_api_key_id', 'refined_description', 'priority', 'reason', 'provider', 'model', 'input_tokens', 'output_tokens', 'response'])]
+#[Fillable(['report_id', 'category_id', 'slot_name', 'refined_description', 'priority', 'reason', 'provider', 'model', 'input_tokens', 'output_tokens', 'response'])]
 class ReportAiResult extends Model
 {
     /** @use HasFactory<ReportAiResultFactory> */
@@ -31,20 +29,5 @@ class ReportAiResult extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
-    }
-
-    public function aiApiKey(): BelongsTo
-    {
-        return $this->belongsTo(AiApiKey::class);
-    }
-
-    #[Scope]
-    protected function search(Builder $query, string $search): Builder
-    {
-        return $query->when($search, function (Builder $query) use ($search) {
-            $query->where(function (Builder $query) use ($search) {
-                $query->whereAny(['refined_description', 'reason', 'provider', 'model'], 'like', "%{$search}%");
-            });
-        });
     }
 }

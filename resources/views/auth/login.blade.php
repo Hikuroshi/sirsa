@@ -4,10 +4,6 @@
     <x-card class="mx-auto max-w-md">
         <h1 class="text-2xl font-semibold">Login</h1>
 
-        @if (session('success'))
-            <x-alert class="mt-4">{{ session('success') }}</x-alert>
-        @endif
-
         <form class="mt-6 grid gap-4" action="{{ route('authenticate') }}" method="POST">
             @csrf
 

@@ -13,10 +13,6 @@
                 <dd>{{ $category->description ?: '-' }}</dd>
             </div>
             <div>
-                <dt class="font-semibold">Status</dt>
-                <dd>{{ $category->is_active ? 'Aktif' : 'Tidak aktif' }}</dd>
-            </div>
-            <div>
                 <dt class="font-semibold">Jumlah laporan</dt>
                 <dd>{{ $category->reports_count }}</dd>
             </div>

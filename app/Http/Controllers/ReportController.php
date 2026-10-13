@@ -38,14 +38,26 @@ class ReportController extends Controller
     public function show(Report $report): View
     {
         Gate::authorize('view', $report);
-        $report->load(['category', 'images', 'aiResult.category', 'statusHistories.changedBy']);
+        $report->load(['category', 'images', 'aiResult', 'statusHistories']);
 
         return view('report.show', [
-            'title' => 'Laporan',
+            'title' => 'Detail Laporan',
+            'report' => $report,
+            'tracking' => false,
+        ]);
+    }
+
+    public function verification(Report $report): View
+    {
+        Gate::authorize('update', $report);
+        $report->load(['category', 'images', 'aiResult']);
+
+        return view('report.verification', [
+            'title' => 'Verifikasi Laporan',
             'report' => $report,
             'priorities' => ReportPriority::cases(),
             'statuses' => ReportStatus::cases(),
-            'categories' => Category::query()->where('is_active', true)->orderBy('name')->get(),
+            'categories' => Category::query()->orderBy('name')->get(),
         ]);
     }
 

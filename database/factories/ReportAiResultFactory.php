@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Enums\ReportPriority;
-use App\Models\AiApiKey;
 use App\Models\Report;
 use App\Models\ReportAiResult;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -22,7 +21,7 @@ class ReportAiResultFactory extends Factory
     {
         return [
             'report_id' => Report::factory(),
-            'ai_api_key_id' => AiApiKey::factory(),
+            'slot_name' => fake()->word(),
             'refined_description' => fake()->paragraph(),
             'priority' => ReportPriority::Medium,
             'reason' => fake()->sentence(),

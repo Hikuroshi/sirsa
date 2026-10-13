@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('report_id')->unique()->constrained()->cascadeOnDelete();
             $table->foreignUuid('category_id')->nullable()->constrained()->nullOnDelete();
-            $table->uuid('ai_api_key_id')->nullable();
+            $table->string('slot_name');
             $table->text('refined_description');
             $table->string('priority');
             $table->text('reason')->nullable();

@@ -2,20 +2,19 @@
 
 namespace App\Services;
 
-use App\Models\AiApiKey;
-
 final readonly class AiReservation
 {
     public function __construct(
-        public ?AiApiKey $apiKey,
+        public ?AiSlot $slot,
         public int $retryAfter = 0,
         public ?string $minuteBucketId = null,
         public ?string $dayBucketId = null,
         public int $estimatedTokens = 0,
+        public bool $impossible = false,
     ) {}
 
     public function isAvailable(): bool
     {
-        return $this->apiKey !== null;
+        return $this->slot !== null;
     }
 }

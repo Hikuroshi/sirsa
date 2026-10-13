@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -17,17 +18,16 @@ class UserController extends Controller
     {
         Gate::authorize('viewAny', User::class);
         $users = User::query()
-            ->where('role', Role::Admin->value)
             ->search($request->string('search')->trim()->toString())
             ->latest()
             ->paginate(10)
             ->withQueryString();
         $deletionWarnings = $users->getCollection()->mapWithKeys(fn (User $user): array => [
-            $user->id => "Hapus admin {$user->name}? Laporan dan riwayat yang terkait tetap tersimpan, tetapi referensi akun admin akan dikosongkan.",
+            $user->id => "Hapus pengguna {$user->name}? Laporan dan riwayat yang terkait tetap tersimpan, tetapi referensi akun pengguna akan dikosongkan.",
         ]);
 
         return view('user.index', [
-            'title' => 'Daftar Admin',
+            'title' => 'Daftar Pengguna',
             'users' => $users,
             'deletionWarnings' => $deletionWarnings,
         ]);
@@ -38,7 +38,8 @@ class UserController extends Controller
         Gate::authorize('create', User::class);
 
         return view('user.form', [
-            'title' => 'Tambah Admin',
+            'title' => 'Tambah Pengguna',
+            'roles' => Role::cases(),
         ]);
     }
 
@@ -47,7 +48,7 @@ class UserController extends Controller
         Gate::authorize('create', User::class);
         $validated = $this->validateUser($request, passwordRequired: true);
 
-        User::create([...$validated, 'role' => Role::Admin]);
+        User::create($validated);
 
         return redirect()->route('user.index')->with('success', 'Pengguna berhasil dibuat.');
     }
@@ -69,6 +70,7 @@ class UserController extends Controller
         return view('user.form', [
             'title' => 'Edit Pengguna',
             'user' => $user,
+            'roles' => Role::cases(),
         ]);
     }
 
@@ -77,11 +79,26 @@ class UserController extends Controller
         Gate::authorize('update', $user);
         $validated = $this->validateUser($request, $user);
 
-        if (blank($validated['password'])) {
+        if (blank($validated['password'] ?? null)) {
             unset($validated['password']);
         }
 
-        $user->update($validated);
+        DB::transaction(function () use ($request, $user, $validated): void {
+            $admins = User::query()->where('role', Role::Admin->value)->lockForUpdate()->get();
+            $lockedUser = User::query()->lockForUpdate()->findOrFail($user->id);
+
+            if ($lockedUser->isAdmin() && $validated['role'] !== Role::Admin->value) {
+                if ($request->user()->is($user)) {
+                    throw ValidationException::withMessages(['role' => 'Anda tidak dapat mengubah peran akun sendiri.']);
+                }
+
+                if ($admins->count() <= 1) {
+                    throw ValidationException::withMessages(['role' => 'Aplikasi harus memiliki minimal satu pengguna pengelola.']);
+                }
+            }
+
+            $lockedUser->update($validated);
+        }, 3);
 
         return redirect()->route('user.index')->with('success', 'Pengguna berhasil diperbarui.');
     }
@@ -96,18 +113,19 @@ class UserController extends Controller
 
         $deleted = DB::transaction(function () use ($user): bool {
             $admins = User::query()->where('role', Role::Admin->value)->lockForUpdate()->get();
+            $lockedUser = User::query()->lockForUpdate()->findOrFail($user->id);
 
-            if ($admins->count() <= 1) {
+            if ($lockedUser->isAdmin() && $admins->count() <= 1) {
                 return false;
             }
 
-            $user->delete();
+            $lockedUser->delete();
 
             return true;
         });
 
         if (! $deleted) {
-            return back()->withErrors(['user' => 'Aplikasi harus memiliki minimal satu Admin.']);
+            return back()->withErrors(['user' => 'Aplikasi harus memiliki minimal satu pengguna pengelola.']);
         }
 
         return redirect()->route('user.index')->with('success', 'Pengguna berhasil dihapus.');
@@ -121,6 +139,7 @@ class UserController extends Controller
             'username' => ['required', 'string', 'max:255', Rule::unique('users', 'username')->ignore($user)],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user)],
             'password' => [$passwordRequired ? 'required' : 'nullable', 'string', 'min:8', 'confirmed'],
+            'role' => ['required', Rule::enum(Role::class)],
         ]);
     }
 }

@@ -7,7 +7,6 @@ use App\Enums\ReportPriority;
 use App\Enums\ReportStatus;
 use App\Models\Report;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 /**
  * @extends Factory<Report>
@@ -22,7 +21,6 @@ class ReportFactory extends Factory
     public function definition(): array
     {
         return [
-            'tracking_code' => Str::lower(Str::random(24)),
             'reporter_name' => fake()->name(),
             'reporter_contact' => fake()->safeEmail(),
             'original_description' => fake()->paragraph(),

@@ -2,53 +2,58 @@
 
 namespace App\Services;
 
-use App\Models\AiApiKey;
-use App\Models\AiModelLimit;
+use App\Models\AiKeyState;
 use App\Models\AiUsageBucket;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
+use App\Models\Report;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class AiRequestScheduler
 {
+    public function __construct(private AiSlots $slots, private AiProviderRegistry $providers) {}
+
     public function hasConfiguration(): bool
     {
-        return $this->availableKeys()->exists();
+        return $this->slots->hasAny();
     }
 
-    public function preferredModelLimit(): ?AiModelLimit
+    public function reserve(Report $report): AiReservation
     {
-        return $this->availableKeys()
-            ->with('modelLimit')
-            ->first()
-            ?->modelLimit;
-    }
-
-    public function reserve(AiModelLimit $modelLimit, int $estimatedTokens): AiReservation
-    {
-        /** @var Collection<int, AiApiKey> $keys */
-        $keys = $this->availableKeys()
-            ->whereBelongsTo($modelLimit, 'modelLimit')
-            ->where(fn ($query) => $query
-                ->whereNull('cooldown_until')
-                ->orWhere('cooldown_until', '<=', now()))
-            ->with('modelLimit')
-            ->get();
-
         $retryAfter = PHP_INT_MAX;
+        $hasCapableSlot = false;
 
-        foreach ($keys as $apiKey) {
-            $quota = DB::transaction(function () use ($apiKey, $estimatedTokens): array {
-                $limits = $apiKey->effectiveLimits();
-                $minute = $this->bucket($apiKey, 'minute', now()->startOfMinute());
-                $day = $this->bucket($apiKey, 'day', now()->startOfDay());
+        foreach ($this->slots->all() as $slot) {
+            $estimatedTokens = $this->providers->resolve($slot->provider)->estimateTokens($report);
 
-                if ($day->requests >= $limits['rpd']) {
+            if ($estimatedTokens > $slot->tpm) {
+                continue;
+            }
+
+            $hasCapableSlot = true;
+
+            $quota = DB::transaction(function () use ($slot, $estimatedTokens): array {
+                AiKeyState::query()->insertOrIgnore([
+                    'id' => $slot->id(),
+                    'failure_count' => 0,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                /** @var AiKeyState $state */
+                $state = AiKeyState::query()->lockForUpdate()->findOrFail($slot->id());
+
+                if ($state->cooldown_until?->isFuture()) {
+                    return ['wait' => max(1, now()->diffInSeconds($state->cooldown_until))];
+                }
+
+                $minute = $this->bucket($state, 'minute', now()->startOfMinute());
+                $day = $this->bucket($state, 'day', now()->startOfDay());
+
+                if ($day->requests >= $slot->rpd) {
                     return ['wait' => max(1, now()->diffInSeconds(now()->addDay()->startOfDay()))];
                 }
 
-                if ($minute->requests >= $limits['rpm'] || $minute->tokens + $estimatedTokens > $limits['tpm']) {
+                if ($minute->requests >= $slot->rpm || $minute->tokens + $estimatedTokens > $slot->tpm) {
                     return ['wait' => max(1, now()->diffInSeconds(now()->addMinute()->startOfMinute()))];
                 }
 
@@ -56,7 +61,7 @@ class AiRequestScheduler
                 $minute->increment('tokens', $estimatedTokens);
                 $day->increment('requests');
                 $day->increment('tokens', $estimatedTokens);
-                $apiKey->update(['last_used_at' => now()]);
+                $state->update(['last_used_at' => now()]);
 
                 return [
                     'wait' => 0,
@@ -67,7 +72,7 @@ class AiRequestScheduler
 
             if ($quota['wait'] === 0) {
                 return new AiReservation(
-                    apiKey: $apiKey,
+                    slot: $slot,
                     minuteBucketId: $quota['minute_bucket_id'],
                     dayBucketId: $quota['day_bucket_id'],
                     estimatedTokens: $estimatedTokens,
@@ -77,15 +82,11 @@ class AiRequestScheduler
             $retryAfter = min($retryAfter, $quota['wait']);
         }
 
-        return new AiReservation(null, $retryAfter === PHP_INT_MAX ? 60 : $retryAfter);
-    }
+        if (! $hasCapableSlot) {
+            return new AiReservation(null, impossible: true);
+        }
 
-    /** @return Builder<AiApiKey> */
-    private function availableKeys(): Builder
-    {
-        return AiApiKey::query()
-            ->where('is_active', true)
-            ->orderBy('priority');
+        return new AiReservation(null, $retryAfter);
     }
 
     public function reconcile(AiReservation $reservation, int $actualTokens): void
@@ -107,19 +108,19 @@ class AiRequestScheduler
         }, 3);
     }
 
-    public function markFailure(AiApiKey $apiKey): void
+    public function markFailure(AiSlot $slot): void
     {
-        $apiKey->increment('failure_count', 1, [
+        AiKeyState::query()->findOrFail($slot->id())->increment('failure_count', 1, [
             'cooldown_until' => now()->addMinute(),
             'last_error' => 'Permintaan ke provider AI gagal.',
         ]);
     }
 
-    private function bucket(AiApiKey $apiKey, string $window, \DateTimeInterface $periodStartedAt): AiUsageBucket
+    private function bucket(AiKeyState $state, string $window, \DateTimeInterface $periodStartedAt): AiUsageBucket
     {
         AiUsageBucket::query()->insertOrIgnore([
             'id' => (string) Str::uuid(),
-            'ai_api_key_id' => $apiKey->id,
+            'ai_key_state_id' => $state->id,
             'window' => $window,
             'period_started_at' => $periodStartedAt,
             'requests' => 0,
@@ -129,7 +130,7 @@ class AiRequestScheduler
         ]);
 
         return AiUsageBucket::query()
-            ->whereBelongsTo($apiKey)
+            ->where('ai_key_state_id', $state->id)
             ->where('window', $window)
             ->where('period_started_at', $periodStartedAt)
             ->lockForUpdate()

@@ -12,7 +12,7 @@ class ReportAnalysisPrompt
 
     public function render(Report $report): string
     {
-        $categories = Category::query()->where('is_active', true)->orderBy('name')->get()
+        $categories = Category::query()->orderBy('name')->get()
             ->map(fn ($category): string => "{$category->id}: {$category->name}")
             ->implode("\n");
 

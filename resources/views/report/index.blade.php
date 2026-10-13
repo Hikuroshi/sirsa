@@ -2,7 +2,7 @@
     <x-slot:title>Daftar Laporan</x-slot:title>
     <x-page-header title="Daftar Laporan" />
 
-    <x-search placeholder="Cari kode, pelapor, kontak, atau deskripsi..." />
+    <x-search placeholder="Cari ID, pelapor, kontak, atau deskripsi..." />
 
     <div class="mt-4 overflow-x-auto rounded bg-white">
         <table class="w-full text-left">

@@ -14,7 +14,7 @@ class UserPolicy
 
     public function view(User $user, User $target): Response
     {
-        return $user->isAdmin() && $target->isAdmin()
+        return $user->isAdmin()
             ? Response::allow()
             : Response::denyAsNotFound();
     }
