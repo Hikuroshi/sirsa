@@ -1,14 +1,14 @@
 @props(['label', 'name', 'type' => 'text', 'value' => ''])
 
-<label class="grid gap-1">
-    <span>{{ $label }}</span>
+<fieldset class="fieldset">
+    <legend class="fieldset-legend">{{ $label }}</legend>
     <input
         type="{{ $type }}"
         name="{{ $name }}"
         value="{{ $type === 'password' ? '' : old($name, $value) }}"
-        {{ $attributes->class(['w-full rounded border p-2', 'border-red-500' => $errors->has($name)]) }}
+        {{ $attributes->class(['input w-full', 'input-error' => $errors->has($name)]) }}
     />
     @error($name)
-        <span class="text-sm text-red-600">{{ $message }}</span>
+        <p class="label text-error">{{ $message }}</p>
     @enderror
-</label>
+</fieldset>

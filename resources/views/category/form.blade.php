@@ -2,24 +2,25 @@
     <x-slot:title>{{ $title }}</x-slot:title>
     <x-page-header :title="$title" />
 
-    <x-card class="mt-6">
-        <form
-            class="grid gap-4"
-            action="{{ isset($category) ? route('categories.update', $category) : route('categories.store') }}"
-            method="POST"
-        >
-            @csrf
-            @isset($category)
-                @method('PUT')
-            @endisset
+    <div class="card bg-base-100 mt-6 shadow-sm">
+        <div class="card-body">
+            <form
+                action="{{ isset($category) ? route('categories.update', $category) : route('categories.store') }}"
+                method="POST"
+            >
+                @csrf
+                @isset($category)
+                    @method('PUT')
+                @endisset
 
-            <x-form.input label="Nama" name="name" :value="$category->name ?? ''" />
-            <x-form.textarea label="Deskripsi" name="description" :value="$category->description ?? ''" />
+                <x-form.input label="Nama" name="name" :value="$category->name ?? ''" />
+                <x-form.textarea label="Deskripsi" name="description" :value="$category->description ?? ''" />
 
-            <div class="flex gap-3">
-                <x-button type="submit">Simpan</x-button>
-                <x-button :href="route('categories.index')" variant="secondary">Batal</x-button>
-            </div>
-        </form>
-    </x-card>
+                <div class="card-actions mt-4">
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                    <a href="{{ route('categories.index') }}" class="btn btn-ghost">Batal</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </x-layouts.app>
