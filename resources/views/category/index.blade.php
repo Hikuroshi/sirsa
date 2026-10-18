@@ -3,30 +3,32 @@
 
     <x-page-header title="Daftar Kategori">
         <x-slot:actions>
-            <x-button :href="route('categories.create')">Tambah</x-button>
+            <a href="{{ route('categories.create') }}" class="btn btn-primary btn-sm">Tambah</a>
         </x-slot:actions>
     </x-page-header>
 
     <x-search placeholder="Cari nama atau deskripsi kategori..." />
 
-    <div class="mt-4 overflow-x-auto rounded bg-white">
-        <table class="w-full text-left">
-            <thead class="border-b bg-gray-50">
+    <div class="mt-4 overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
+        <table class="table table-zebra">
+            <thead>
                 <tr>
-                    <th class="p-3">Nama</th>
-                    <th class="p-3">Laporan</th>
-                    <th class="p-3">Aksi</th>
+                    <th>Nama</th>
+                    <th>Laporan</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($categories as $category)
-                    <tr class="border-b">
-                        <td class="p-3">{{ $category->name }}</td>
-                        <td class="p-3">{{ $category->reports_count }}</td>
-                        <td class="p-3">
+                    <tr>
+                        <td>{{ $category->name }}</td>
+                        <td>
+                            <span class="badge badge-accent -soft">{{ $category->reports_count }}</span>
+                        </td>
+                        <td>
                             <div class="flex flex-wrap gap-1">
-                                <x-button :href="route('categories.show', $category)" variant="link">Detail</x-button>
-                                <x-button :href="route('categories.edit', $category)" variant="link">Edit</x-button>
+                                <a href="{{ route('categories.show', $category) }}" class="btn btn-sm btn-ghost">Detail</a>
+                                <a href="{{ route('categories.edit', $category) }}" class="btn btn-sm btn-ghost">Edit</a>
                                 <form
                                     action="{{ route('categories.destroy', $category) }}"
                                     method="POST"
@@ -34,14 +36,14 @@
                                 >
                                     @csrf
                                     @method('DELETE')
-                                    <x-button type="submit" variant="danger">Hapus</x-button>
+                                    <button type="submit" class="btn btn-sm btn-error btn-soft">Hapus</button>
                                 </form>
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td class="p-3 text-center text-gray-500" colspan="3">Belum ada kategori.</td>
+                        <td class="text-center text-base-content/50" colspan="3">Belum ada kategori.</td>
                     </tr>
                 @endforelse
             </tbody>

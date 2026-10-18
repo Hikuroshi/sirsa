@@ -5,19 +5,18 @@
 ])
 
 @php
-    $classes = match ($variant) {
-        'secondary' => 'rounded border px-4 py-2',
-        'danger' => 'rounded px-3 py-2 text-red-600',
-        'warning' => 'rounded bg-amber-500 px-4 py-2 text-white',
-        'link' => 'rounded px-3 py-2 text-blue-600',
-        default => 'rounded bg-blue-600 px-4 py-2 text-white',
+    $variantClass = match ($variant) {
+        'secondary' => 'btn-neutral btn-outline',
+        'danger' => 'btn-error',
+        'warning' => 'btn-warning',
+        'link' => 'btn-link',
+        default => 'btn-primary',
     };
-
-    $classes = "inline-flex min-h-10 items-center justify-center {$classes}";
 @endphp
 
 @if ($href)
-    <a href="{{ $href }}" {{ $attributes->class($classes) }}>{{ $slot }}</a>
+    <a href="{{ $href }}" {{ $attributes->class(['btn', $variantClass]) }}>{{ $slot }}</a>
 @else
-    <button type="{{ $type }}" {{ $attributes->class($classes) }}>{{ $slot }}</button>
+    <button type="{{ $type }}" {{ $attributes->class(['btn', $variantClass]) }}>{{ $slot }}</button>
 @endif
+

@@ -1,1 +1,19 @@
-<span {{ $attributes->class('inline-flex rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700') }}>{{ $slot }}</span>
+@props(['variant' => 'neutral'])
+
+@php
+    $colorClass = match ($variant) {
+        'primary' => 'badge-primary',
+        'secondary' => 'badge-secondary',
+        'accent' => 'badge-accent',
+        'info' => 'badge-info',
+        'success' => 'badge-success',
+        'warning' => 'badge-warning',
+        'error', 'danger' => 'badge-error',
+        'ghost' => 'badge-ghost',
+        'outline' => 'badge-outline',
+        default => 'badge-neutral badge-outline',
+    };
+@endphp
+
+<span {{ $attributes->class(['badge', $colorClass]) }}>{{ $slot }}</span>
+

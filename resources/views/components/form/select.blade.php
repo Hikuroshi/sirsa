@@ -1,14 +1,15 @@
 @props(['label', 'name'])
 
-<label class="grid gap-1">
-    <span>{{ $label }}</span>
+<fieldset class="fieldset">
+    <legend class="fieldset-legend">{{ $label }}</legend>
     <select
         name="{{ $name }}"
-        {{ $attributes->class(['w-full rounded border p-2', 'border-red-500' => $errors->has($name)]) }}
+        {{ $attributes->class(['select w-full', 'select-error' => $errors->has($name)]) }}
     >
         {{ $slot }}
     </select>
     @error($name)
-        <span class="text-sm text-red-600">{{ $message }}</span>
+        <p class="label text-error">{{ $message }}</p>
     @enderror
-</label>
+</fieldset>
+

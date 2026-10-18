@@ -1,37 +1,55 @@
 <x-layouts.app>
     <x-slot:title>{{ $title }}</x-slot:title>
-    <x-page-header :title="$title" />
-    @if (! $tracking)
-        @can('update', $report)
-            <x-button :href="route('reports.verification', $report)">Verifikasi Laporan</x-button>
-        @endcan
-    @endif
-    <x-card class="mt-6 grid gap-3">
-        <p><strong>Kode:</strong> {{ $report->id }}</p>
-        <p><strong>Pelapor:</strong> {{ $report->reporter_name }}</p>
-        <p><strong>Kontak:</strong> {{ $report->reporter_contact ?? '-' }}</p>
-        <p><strong>Status:</strong> <x-badge>{{ $report->status->label() }}</x-badge></p>
-        <p><strong>AI:</strong> <x-badge>{{ $report->ai_status->label() }}</x-badge></p>
-        <p><strong>Kategori:</strong> {{ $report->category?->name ?? '-' }}</p>
-        <p><strong>Prioritas:</strong> {{ $report->priority->label() }}</p>
-        <x-report-description :report="$report" />
-        <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            @foreach ($report->images as $image)
-                <img class="h-32 w-full rounded object-cover" src="{{ $image->url() }}" alt="Foto laporan" />
-            @endforeach
+
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('reports.index') }}" class="btn btn-ghost btn-circle btn-xs">
+                    <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </a>
+                <h1 class="text-2xl font-bold text-base-content">{{ $title }}</h1>
+            </div>
+            <p class="text-xs text-base-content/70 mt-1 font-mono">Kode Aduan: #{{ $report->id }}</p>
         </div>
-    </x-card>
-    <x-card class="mt-4">
-        <h2 class="font-semibold">Perkembangan</h2>
-        <div class="mt-3 grid gap-3">
-            @foreach ($report->statusHistories as $history)
-                <div class="border-l-2 pl-3">
-                    <p>{{ $history->to_status->label() }} · {{ $history->created_at->format('d M Y H:i') }}</p>
-                    @if ($history->note)
-                        <p class="text-sm text-gray-600">{{ $history->note }}</p>
-                    @endif
-                </div>
-            @endforeach
+
+        @if (! $tracking)
+            @can('update', $report)
+                <a href="{{ route('reports.verification', $report) }}" class="btn btn-warning btn-sm">
+                    <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Verifikasi Laporan
+                </a>
+            @endcan
+        @endif
+    </div>
+
+    @php
+        $statusVariant = match ($report->status->value) {
+            'completed' => 'success',
+            'processing' => 'warning',
+            'rejected' => 'error',
+            default => 'neutral',
+        };
+        $priorityVariant = match ($report->priority->value) {
+            'urgent' => 'error',
+            'high' => 'warning',
+            'medium' => 'info',
+            default => 'ghost',
+        };
+        $aiVariant = match ($report->ai_status->value) {
+            'completed' => 'success',
+            'processing', 'queued' => 'warning',
+            'failed' => 'error',
+            default => 'ghost',
+        };
+    @endphp
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6">
+            @include('report.show-detail')
         </div>
-    </x-card>
+        <div class="space-y-6">
+            @include('report.show-sidebar')
+        </div>
+    </div>
 </x-layouts.app>
+

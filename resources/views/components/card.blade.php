@@ -1,1 +1,6 @@
-<div {{ $attributes->class('rounded bg-white p-6') }}>{{ $slot }}</div>
+<div {{ $attributes->class('card bg-base-100 border border-base-300 shadow-xs') }}>
+    <div class="card-body">
+        {{ $slot }}
+    </div>
+</div>
+
