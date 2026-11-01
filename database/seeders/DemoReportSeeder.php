@@ -24,12 +24,29 @@ class DemoReportSeeder extends Seeder
         ]);
 
         $categories = collect([
-            'Jalan dan Jembatan',
-            'Drainase',
-            'Penerangan Jalan',
-            'Sampah dan Lingkungan',
-            'Pelayanan Publik',
-        ])->mapWithKeys(fn (string $name) => [$name => Category::factory()->create(['name' => $name])]);
+            [
+                'name' => 'Jalan dan Jembatan',
+                'description' => 'Laporan terkait kerusakan jalan, jalan berlubang, jembatan rusak, dan infrastruktur jalan lainnya.',
+            ],
+            [
+                'name' => 'Drainase',
+                'description' => 'Laporan terkait saluran air tersumbat, drainase rusak, genangan air, dan permasalahan aliran air.',
+            ],
+            [
+                'name' => 'Penerangan Jalan',
+                'description' => 'Laporan terkait lampu jalan mati, penerangan yang kurang memadai, dan kerusakan fasilitas penerangan umum.',
+            ],
+            [
+                'name' => 'Sampah dan Lingkungan',
+                'description' => 'Laporan terkait penumpukan sampah, pencemaran lingkungan, kebersihan fasilitas umum, dan pengelolaan limbah.',
+            ],
+            [
+                'name' => 'Pelayanan Publik',
+                'description' => 'Laporan terkait pelayanan administrasi desa, fasilitas pelayanan masyarakat, dan kualitas layanan publik.',
+            ],
+        ])->mapWithKeys(fn (array $category) => [
+            $category['name'] => Category::factory()->create($category),
+        ]);
 
         $admin = User::query()->where('username', 'testuser')->firstOrFail();
 

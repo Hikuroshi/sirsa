@@ -1,65 +1,90 @@
-{{-- STEP 2 --}}
-<div id="step-pane-2" class="space-y-4 hidden">
-    <fieldset class="fieldset">
-        <label class="fieldset-label text-xs font-semibold">Dusun / Lingkungan</label>
-        <select id="modal-dusun" class="select select-sm w-full" required>
-            <option value="" disabled selected>Pilih Dusun</option>
-            <option value="Krajan">Dusun Krajan</option>
-            <option value="Pangkah Barat">Dusun Pangkah Barat</option>
-            <option value="Pangkah Timur">Dusun Pangkah Timur</option>
-            <option value="Kebonsari">Dusun Kebonsari</option>
-        </select>
-    </fieldset>
+<div id="step-pane-2" class="hidden space-y-4">
+    <x-form.input
+        label="Dusun / lingkungan"
+        name="hamlet"
+        id="modal-dusun"
+        aria-label="Dusun atau lingkungan"
+        placeholder="Nama dusun atau lingkungan Anda"
+        maxlength="100"
+        required
+    />
+    <x-form.input
+        label="Patokan / alamat kejadian"
+        name="location"
+        id="modal-location"
+        aria-label="Patokan atau alamat kejadian"
+        placeholder="Contoh: Depan pos RT 02 RW 01"
+        maxlength="500"
+        required
+    />
 
     <fieldset class="fieldset">
-        <label class="fieldset-label text-xs font-semibold">Patokan / Alamat Lengkap</label>
-        <input id="modal-location" type="text" placeholder="Contoh: Depan rumah RT 02 / samping musholla" class="input input-sm w-full" required />
+        <label for="modal-file" class="fieldset-legend">Foto bukti (opsional)</label>
+        <input
+            id="modal-file"
+            name="photos[]"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            class="file-input file-input-sm w-full"
+        />
+        <p class="text-xs text-base-content/60">Maksimal 3 foto JPEG, PNG, atau WebP. Masing-masing maksimal 4 MB.</p>
+        @error ('photos')
+            <p class="text-xs text-error">{{ $message }}</p>
+        @enderror
+        @error ('photos.*')
+            <p class="text-xs text-error">{{ $message }}</p>
+        @enderror
     </fieldset>
 
-    <fieldset class="fieldset">
-        <label class="fieldset-label text-xs font-semibold">Foto Bukti (Opsional)</label>
-        <input id="modal-file" type="file" accept="image/*" class="file-input file-input-sm w-full" />
-        <label class="fieldset-label text-[11px] text-base-content/60">Format foto jpg/png maks 5MB</label>
-    </fieldset>
-
-    <div class="modal-action justify-between mt-6">
-        <button type="button" onclick="goToStep(1)" class="btn btn-sm btn-outline">← Kembali</button>
-        <button type="button" onclick="goToStep(3)" class="btn btn-sm btn-primary">Lanjut: Data Pelapor →</button>
+    <div class="modal-action mt-6 justify-between">
+        <button type="button" onclick="goToStep(1)" class="btn btn-outline btn-sm">← Kembali</button>
+        <button type="button" onclick="nextComplaintStep(3)" class="btn btn-primary btn-sm">
+            Lanjut: Data Pelapor →
+        </button>
     </div>
 </div>
 
-{{-- STEP 3 --}}
-<div id="step-pane-3" class="space-y-4 hidden">
-    <div class="flex items-center justify-between p-3 rounded-lg bg-base-200">
-        <div>
-            <div class="font-bold text-xs">Lapor Sebagai Anonim?</div>
-            <div class="text-[11px] text-base-content/60">Identitas disembunyikan dari publik</div>
-        </div>
-        <input id="modal-anon" type="checkbox" class="toggle toggle-primary toggle-sm" onchange="toggleAnonMode(this.checked)" />
-    </div>
+<div id="step-pane-3" class="hidden space-y-4">
+    <label class="flex cursor-pointer items-center justify-between gap-4 rounded-box bg-base-200 p-3" for="modal-anon">
+        <span>
+            <span class="block text-sm font-semibold">Lapor sebagai anonim</span>
+            <span class="text-xs text-base-content/60">Nama dan kontak tidak dicantumkan pada laporan.</span>
+        </span>
+        <input type="hidden" name="anonymous" value="0" />
+        <input
+            id="modal-anon"
+            name="anonymous"
+            value="1"
+            type="checkbox"
+            class="toggle toggle-sm"
+            @checked (old('anonymous'))
+            onchange="toggleAnonMode(this.checked)"
+        />
+    </label>
 
     <div id="identitas-fields" class="space-y-4">
-        <fieldset class="fieldset">
-            <label class="fieldset-label text-xs font-semibold">Nama Lengkap (Sesuai KTP)</label>
-            <input id="modal-name" type="text" placeholder="Nama Warga" class="input input-sm w-full" />
-        </fieldset>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <fieldset class="fieldset">
-                <label class="fieldset-label text-xs font-semibold">NIK (16 Digit)</label>
-                <input id="modal-nik" type="text" maxlength="16" placeholder="3524..." class="input input-sm w-full font-mono" />
-            </fieldset>
-            <fieldset class="fieldset">
-                <label class="fieldset-label text-xs font-semibold">Nomor WhatsApp Aktif</label>
-                <input id="modal-phone" type="tel" placeholder="08..." class="input input-sm w-full font-mono" />
-            </fieldset>
-        </div>
+        <x-form.input
+            label="Nama pelapor"
+            name="reporter_name"
+            id="modal-name"
+            aria-label="Nama pelapor"
+            :value="auth()->user()?->name ?? ''"
+            maxlength="255"
+            required
+        />
+        <x-form.input
+            label="Kontak (WhatsApp / email, opsional)"
+            name="reporter_contact"
+            id="modal-phone"
+            aria-label="Kontak pelapor"
+            :value="auth()->user()?->email ?? ''"
+            maxlength="255"
+        />
     </div>
 
-    <div class="modal-action justify-between mt-6">
-        <button type="button" onclick="goToStep(2)" class="btn btn-sm btn-outline">← Kembali</button>
-        <button type="submit" class="btn btn-sm btn-success text-white">Kirim Laporan Resmi</button>
+    <div class="modal-action mt-6 justify-between">
+        <button type="button" onclick="goToStep(2)" class="btn btn-outline btn-sm">← Kembali</button>
+        <button type="submit" class="btn btn-primary btn-sm">Kirim Laporan</button>
     </div>
 </div>
-
-

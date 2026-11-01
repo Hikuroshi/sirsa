@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [PageController::class, 'home'])->name('home');
 Route::get('/lapor', [PublicReportController::class, 'create'])->name('public-reports.create');
 Route::post('/lapor', [PublicReportController::class, 'store'])->middleware('throttle:10,1')->name('public-reports.store');
+Route::get('/laporan', [PublicReportController::class, 'lookup'])->name('reports.lookup');
 Route::get('/laporan/{report}', [PublicReportController::class, 'track'])->name('reports.track');
 
 Route::controller(AuthController::class)->middleware('guest')->group(function () {

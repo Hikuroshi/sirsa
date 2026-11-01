@@ -1,3 +1,11 @@
+const dashboardCharts = document.querySelector('[data-dashboard-charts]');
+
+if (dashboardCharts) {
+    import('./dashboard-charts').then(({ initializeDashboardCharts }) =>
+        initializeDashboardCharts(dashboardCharts),
+    );
+}
+
 document.addEventListener('click', (event) => {
     const button = event.target.closest('[data-description-toggle]');
 
@@ -13,5 +21,7 @@ document.addEventListener('click', (event) => {
     refined.hidden = !showingOriginal;
     original.hidden = showingOriginal;
     button.setAttribute('aria-pressed', String(!showingOriginal));
-    button.textContent = showingOriginal ? 'Lihat laporan asli' : 'Lihat laporan yang dirapikan';
+    button.textContent = showingOriginal
+        ? 'Lihat laporan asli'
+        : 'Lihat laporan yang dirapikan';
 });

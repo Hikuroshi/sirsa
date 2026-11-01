@@ -92,7 +92,7 @@ class ReportController extends Controller
                 'ai_cancelled_at' => $shouldCancelAi ? now() : $lockedReport->ai_cancelled_at,
             ]);
 
-            if ($nextStatus !== $previousStatus) {
+            if ($nextStatus !== $previousStatus || filled($validated['note'] ?? null)) {
                 $lockedReport->statusHistories()->create([
                     'changed_by' => $request->user()->id,
                     'from_status' => $previousStatus,

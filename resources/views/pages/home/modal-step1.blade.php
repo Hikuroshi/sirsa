@@ -1,32 +1,42 @@
-{{-- STEP 1 --}}
 <div id="step-pane-1" class="space-y-4">
-    <fieldset class="fieldset">
-        <label class="fieldset-label text-xs font-semibold">Kategori Laporan</label>
-        <select id="modal-category" class="select select-sm w-full" required>
-            <option value="" disabled selected>Pilih Kategori</option>
-            <option value="Jalan & Gorong">Jalan & Gorong-gorong</option>
-            <option value="Lampu Jalan">Lampu Penerangan Jalan (PJU)</option>
-            <option value="Sampah & Lingkungan">Sampah & Kebersihan Lingkungan</option>
-            <option value="Irigasi Sawah">Irigasi Pertanian & Saluran Air</option>
-            <option value="Surat Pengantar">Layanan Administrasi Surat</option>
-            <option value="Bantuan Sosial">Bantuan Sosial & Kemasyarakatan</option>
-            <option value="Lainnya">Lainnya / Aspirasi</option>
-        </select>
-    </fieldset>
+    <x-form.select
+        label="Kategori laporan (opsional)"
+        name="category_id"
+        id="modal-category"
+        aria-label="Kategori laporan"
+    >
+        <option value="">Tentukan otomatis atau ditinjau petugas</option>
+        @foreach ($categories as $category)
+            <option value="{{ $category->id }}" @selected (old('category_id') === $category->id)>
+                {{ $category->name }}
+            </option>
+        @endforeach
+    </x-form.select>
 
-    <fieldset class="fieldset">
-        <label class="fieldset-label text-xs font-semibold">Judul Ringkas Aduan</label>
-        <input id="modal-title" type="text" placeholder="Contoh: Aspal amblas depan pos RW 02" class="input input-sm w-full" required />
-    </fieldset>
-
-    <fieldset class="fieldset">
-        <label class="fieldset-label text-xs font-semibold">Uraian Masalah</label>
-        <textarea id="modal-desc" class="textarea textarea-sm w-full h-24" placeholder="Jelaskan kendala secara rinci..." required></textarea>
-    </fieldset>
+    <x-form.input
+        label="Judul ringkas aduan"
+        name="title"
+        id="modal-title"
+        aria-label="Judul ringkas aduan"
+        placeholder="Contoh: Jalan berlubang di depan pos ronda"
+        maxlength="255"
+        required
+    />
+    <x-form.textarea
+        label="Uraian masalah"
+        name="description"
+        id="modal-desc"
+        aria-label="Uraian masalah"
+        class="min-h-24"
+        placeholder="Jelaskan kondisi dan dampaknya, minimal 20 karakter."
+        minlength="20"
+        maxlength="10000"
+        required
+    />
 
     <div class="modal-action mt-6">
-        <button type="button" onclick="goToStep(2)" class="btn btn-sm btn-primary">Lanjut: Lokasi & Foto →</button>
+        <button type="button" onclick="nextComplaintStep(2)" class="btn btn-primary btn-sm">
+            Lanjut: Lokasi & Foto →
+        </button>
     </div>
 </div>
-
-

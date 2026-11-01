@@ -42,7 +42,7 @@ class AnalyzeReport implements ShouldBeUnique, ShouldQueue
     {
         $report = $this->report->fresh(['images']);
 
-        if ($report === null || $report->ai_cancelled_at !== null || $report->verified_at !== null) {
+        if ($report === null || $report->ai_cancelled_at !== null || $report->verified_at !== null || $report->ai_status === AiStatus::Completed) {
             return;
         }
 
@@ -81,6 +81,7 @@ class AnalyzeReport implements ShouldBeUnique, ShouldQueue
 
         $started = Report::query()
             ->whereKey($report->id)
+            ->whereIn('ai_status', [AiStatus::Queued, AiStatus::Processing])
             ->whereNull('ai_cancelled_at')
             ->whereNull('verified_at')
             ->update(['ai_status' => AiStatus::Processing]);
@@ -91,7 +92,7 @@ class AnalyzeReport implements ShouldBeUnique, ShouldQueue
 
         $report->refresh();
 
-        if ($report->ai_cancelled_at !== null || $report->verified_at !== null) {
+        if ($report->ai_cancelled_at !== null || $report->verified_at !== null || $report->ai_status === AiStatus::Completed) {
             return;
         }
 
@@ -112,7 +113,7 @@ class AnalyzeReport implements ShouldBeUnique, ShouldQueue
         DB::transaction(function () use ($report, $reservation, $result): void {
             $lockedReport = Report::query()->lockForUpdate()->find($report->id);
 
-            if ($lockedReport === null || $lockedReport->ai_cancelled_at !== null || $lockedReport->verified_at !== null) {
+            if ($lockedReport === null || $lockedReport->ai_cancelled_at !== null || $lockedReport->verified_at !== null || $lockedReport->ai_status === AiStatus::Completed) {
                 return;
             }
 

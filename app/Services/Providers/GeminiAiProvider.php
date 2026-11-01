@@ -13,11 +13,17 @@ use UnexpectedValueException;
 
 class GeminiAiProvider implements AiProvider
 {
+    private const MAX_OUTPUT_TOKENS = 4096;
+
     public function __construct(private ReportAnalysisPrompt $prompt) {}
 
     public function estimateTokens(Report $report): int
     {
-        return max(100, (int) ceil(mb_strlen($report->original_description) / 4) + ($report->images()->count() * 1000));
+        $text = $this->prompt->render($report).json_encode($this->schema(), JSON_THROW_ON_ERROR);
+
+        return (int) ceil(mb_strlen($text) / 3)
+            + ($report->images()->count() * 1000)
+            + self::MAX_OUTPUT_TOKENS;
     }
 
     public function analyze(Report $report, AiSlot $slot): array
@@ -49,6 +55,7 @@ class GeminiAiProvider implements AiProvider
                 'model' => $slot->model,
                 'input' => $input,
                 'store' => false,
+                'generation_config' => ['max_output_tokens' => self::MAX_OUTPUT_TOKENS],
                 'response_format' => [
                     'type' => 'text',
                     'mime_type' => 'application/json',
