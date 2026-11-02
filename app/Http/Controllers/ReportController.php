@@ -38,7 +38,8 @@ class ReportController extends Controller
     public function show(Report $report): View
     {
         Gate::authorize('view', $report);
-        $report->load(['category', 'images', 'aiResult', 'statusHistories']);
+        $report->load(['category', 'images', 'statusHistories']);
+        $report->load(Gate::allows('update', $report) ? 'aiResult' : 'aiResult:id,report_id');
 
         return view('report.show', [
             'title' => 'Detail Laporan',

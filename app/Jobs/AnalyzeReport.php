@@ -123,6 +123,7 @@ class AnalyzeReport implements ShouldBeUnique, ShouldQueue
                     'category_id' => $result['category_id'],
                     'slot_name' => $reservation->slot->name,
                     'refined_description' => $result['refined_description'],
+                    'handling_recommendation' => $result['handling_recommendation'],
                     'priority' => $result['priority'],
                     'reason' => $result['reason'],
                     'provider' => $reservation->slot->provider,

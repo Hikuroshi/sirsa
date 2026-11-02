@@ -119,7 +119,7 @@ class PublicReportController extends Controller
 
     public function track(Report $report): View
     {
-        $report->load(['category', 'images', 'aiResult', 'statusHistories']);
+        $report->load(['category', 'images', 'aiResult:id,report_id', 'statusHistories']);
 
         return view('report.show', [
             'title' => 'Pelacakan Laporan',

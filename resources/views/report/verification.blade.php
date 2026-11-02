@@ -39,7 +39,10 @@
     @endphp
 
     <div class="grid gap-6 lg:grid-cols-2">
-        @include('report.verification-preview')
+        <div class="space-y-6">
+            @include('report.verification-preview')
+            @include('report.handling-recommendation', ['report' => $report])
+        </div>
         @include('report.verification-form')
     </div>
 </x-layouts.app>

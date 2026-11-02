@@ -23,6 +23,7 @@ class ReportAiResultFactory extends Factory
             'report_id' => Report::factory(),
             'slot_name' => fake()->word(),
             'refined_description' => fake()->paragraph(),
+            'handling_recommendation' => fake()->paragraph(),
             'priority' => ReportPriority::Medium,
             'reason' => fake()->sentence(),
             'provider' => fake()->slug(1),

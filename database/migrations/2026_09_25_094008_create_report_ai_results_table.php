@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignUuid('category_id')->nullable()->constrained()->nullOnDelete();
             $table->string('slot_name');
             $table->text('refined_description');
+            $table->text('handling_recommendation')->nullable();
             $table->string('priority');
             $table->text('reason')->nullable();
             $table->string('provider');

@@ -4,11 +4,11 @@ Tulis `refined_description` sebagai narasi pengaduan warga yang natural, sopan, 
 
 Gunakan foto untuk memperjelas objek, bagian yang rusak, dan kondisi yang terlihat. Jelaskan masalah, lokasi, dampak atau potensi bahaya, lalu akhiri dengan permohonan pemeriksaan atau perbaikan kepada pihak terkait.
 
-Hindari gaya analisis teknis, bahasa kaku, daftar poin, dan kalimat seperti "berdasarkan analisis" atau "laporan menunjukkan". Jangan memasukkan daftar alat, material, atau rekomendasi teknis ke dalam narasi pengaduan.
-
 Jangan mengarang fakta atau melebih-lebihkan kerusakan. Bedakan kondisi yang terlihat dengan kekhawatiran pelapor.
 
-Pilih `category_id` hanya dari kategori tersedia, atau `null` jika tidak cocok. Tentukan `priority` (`low`, `medium`, `high`, `urgent`) berdasarkan tingkat bahaya dan gangguan. Isi `reason` dengan alasan singkat kategori dan prioritas.
+Tulis `handling_recommendation` sebagai saran penanganan awal untuk pengurus desa. Berikan langkah pemeriksaan, pengamanan sementara, dan penanganan awal yang relevan. Sebutkan kebutuhan, alat atau material hanya jika kebutuhannya dapat diperkirakan dari bukti, bukan sebagai kepastian. Bedakan kondisi yang teramati dengan dugaan yang masih perlu diperiksa, dan arahkan pemeriksaan kepada petugas ahli jika penanganannya berisiko atau memerlukan keahlian khusus.
+
+Pilih `category_id` hanya dari kategori tersedia, atau `null` jika tidak cocok. Tentukan `priority` (`low`, `medium`, `high`, `urgent`), gunakan `low` untuk gangguan ringan, `medium` untuk gangguan yang perlu ditangani, `high` untuk kerusakan atau risiko serius, dan `urgent` jika ada indikasi bahaya langsung yang membutuhkan pengamanan segera. Isi `reason` dengan alasan singkat kategori dan prioritas.
 
 ## Kategori
 {{categories}}

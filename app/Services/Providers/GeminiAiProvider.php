@@ -70,9 +70,12 @@ class GeminiAiProvider implements AiProvider
             ->whereKey($result['category_id'] ?? null)
             ->value('id');
         [$inputTokens, $outputTokens] = $this->tokenUsage($response);
+        $recommendation = $result['handling_recommendation'] ?? null;
+        $recommendation = is_string($recommendation) ? trim($recommendation) : null;
 
         return [
             'refined_description' => (string) ($result['refined_description'] ?? $report->original_description),
+            'handling_recommendation' => $recommendation === '' ? null : $recommendation,
             'category_id' => $categoryId,
             'priority' => in_array($result['priority'] ?? null, ['low', 'medium', 'high', 'urgent'], true) ? $result['priority'] : 'medium',
             'reason' => $result['reason'] ?? null,
@@ -124,11 +127,12 @@ class GeminiAiProvider implements AiProvider
             'type' => 'object',
             'properties' => [
                 'refined_description' => ['type' => 'string'],
+                'handling_recommendation' => ['type' => ['string', 'null']],
                 'category_id' => ['type' => ['string', 'null']],
                 'priority' => ['type' => 'string', 'enum' => ['low', 'medium', 'high', 'urgent']],
                 'reason' => ['type' => ['string', 'null']],
             ],
-            'required' => ['refined_description', 'category_id', 'priority', 'reason'],
+            'required' => ['refined_description', 'handling_recommendation', 'category_id', 'priority', 'reason'],
         ];
     }
 }
