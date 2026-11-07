@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>{{ $title }} | {{ config('app.name') }}</title>
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}" />
+    <link rel="apple-touch-icon" href="{{ asset('logo.png') }}" />
 
     @fonts
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -51,8 +53,8 @@
 
                 {{-- Logo --}}
                 <div class="flex-1 lg:flex-none">
-                    <a href="{{ route('home') }}" class="btn btn-ghost text-base font-bold">
-                        {{ config('app.name') }}
+                    <a href="{{ route('home') }}" class="btn btn-ghost" aria-label="{{ config('app.name') }} — Beranda">
+                        <img src="{{ asset('logo-full.png') }}" alt="{{ config('app.name') }}" width="1851" height="577" class="h-9 w-auto" />
                     </a>
                 </div>
 
